@@ -3,7 +3,9 @@
 (jbuild_version 1)
 
 (executables
- ((names (protocol))
-  (libraries (core async incremental_kernel))
-  (preprocess (pps (ppx_jane ppx_driver.runner)))
+ ((names (main))
+  (libraries (core async incremental_kernel incr_dom expect_test_helpers))
+  (preprocess (pps (ppx_jane)))
+  (flags (:standard -short-paths))
   ))
+

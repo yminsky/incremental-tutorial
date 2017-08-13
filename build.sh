@@ -1,1 +1,1 @@
-jbuilder build protocol.bc --dev 
+jbuilder build main.bc --dev 

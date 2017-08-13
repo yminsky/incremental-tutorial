@@ -1,8 +1,9 @@
 B _build/default
-FLG -ppx "_build/default/.ppx/ppx_jane+ppx_driver.runner/ppx.exe --as-ppx"
-FLG -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs
+FLG -ppx '/Users/yminsky/Documents/incremental-tutorial/_build/default/.ppx/ppx_jane/ppx.exe --as-ppx'
+FLG -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs -short-paths
 PKG async
 PKG async_extra
+PKG async_js
 PKG async_kernel
 PKG async_rpc_kernel
 PKG async_unix
@@ -12,12 +13,20 @@ PKG base.shadow_stdlib
 PKG bigarray
 PKG bin_prot
 PKG bin_prot.shape
+PKG bytes
 PKG core
 PKG core_kernel
 PKG core_kernel.base_for_tests
+PKG expect_test_helpers
+PKG expect_test_helpers_kernel
 PKG fieldslib
+PKG incr_dom
+PKG incr_map
+PKG incr_select
 PKG incremental_kernel
 PKG jane-street-headers
+PKG js_of_ocaml
+PKG lwt
 PKG num
 PKG num.core
 PKG ppx_assert.runtime-lib
@@ -29,6 +38,13 @@ PKG ppx_expect.config
 PKG ppx_hash.runtime-lib
 PKG ppx_inline_test.config
 PKG ppx_inline_test.runtime-lib
+PKG re
+PKG re.emacs
+PKG re.pcre
+PKG re.perl
+PKG re.str
+PKG result
+PKG sexp_pretty
 PKG sexplib
 PKG sexplib.0
 PKG sexplib.unix
@@ -37,5 +53,9 @@ PKG stdio
 PKG threads
 PKG threads.posix
 PKG typerep
+PKG tyxml.functor
+PKG uchar
 PKG unix
+PKG uutf
 PKG variantslib
+PKG virtual_dom
