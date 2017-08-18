@@ -1,1 +1,1 @@
-jbuilder build main.bc --dev 
+jbuilder build main.exe --dev 

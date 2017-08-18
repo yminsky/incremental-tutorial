@@ -16,6 +16,7 @@ module Check = struct
   module Name : Identifiable = String
   module Outcome = struct
     type t = Passed | Failed of string
+    [@@deriving sexp, bin_io]
   end
 
   module Event = struct
@@ -31,6 +32,7 @@ module Check = struct
           ; check        : Name.t
           ; when_checked : Time.t
           ; outcome      : Outcome.t }
+    [@@deriving sexp, bin_io]
   end
 end
 
@@ -38,5 +40,6 @@ module Event = struct
   type t = 
     | Check of Check.Event.t
     | Host_info of Host.Info.t
+  [@@deriving sexp, bin_io]
 end
 

@@ -41,7 +41,7 @@ let random_host_set rs n =
   in
   loop Host.Name.Set.empty
 
-module Host_state = struct
+module State = struct
   type t = { hosts : Host.Name.Set.t
            ; active : (Host.Info.t * (Time.t * Check.Outcome.t) Check.Name.Map.t)
                         Host.Name.Map.t
@@ -77,6 +77,7 @@ module Host_state = struct
                      ; Event.Check (Report {host; check; when_checked; outcome})]
 
   let chooser rs options =
+    let options = List.map options ~f:(fun (w,v) -> (Int.to_float w,v)) in
     let total_weight = List.map ~f:fst options |> List.fold ~init:0. ~f:(+.) in
     let choices = Array.of_list options in
     (fun () ->
@@ -89,18 +90,18 @@ module Host_state = struct
        in
        find 0 (Random.State.float rs total_weight))
     
-  let equiprobable l = List.map ~f:(fun x -> (1.,x)) l
+  let equiprobable l = List.map ~f:(fun x -> (1,x)) l
 
   type update_type = Activate_host | Check_success | Check_fail
 
-  let updater t rs =
+  let next_event t rs =
     let choose_host = chooser rs (equiprobable (Set.to_list t.hosts)) in
     let choose_check = chooser rs (equiprobable (Check_type.all : Check_type.t list)) in
     let update_type =
       chooser rs
-        [ 0.02, Activate_host
-        ; 0.90, Check_success
-        ; 0.08, Check_fail
+        [ 2  , Activate_host
+        ; 90 , Check_success
+        ; 8  , Check_fail
         ]
     in
     (fun t ->
@@ -141,7 +142,16 @@ module Host_state = struct
        | Check_fail -> change_check (fun _ -> Failed "Aaaargh!")
     )
 
-
 end
 
+let sequence rs time ~num_hosts ~pct_active =
+  let state = State.create rs time ~num_hosts ~pct_active in
+  let next_event = State.next_event state rs in
+  Sequence.append
+    (State.snapshot state)
+    (Sequence.join
+       (Sequence.unfold ~init:state ~f:(fun s ->
+          let (s',evs) = next_event s in
+          Some (Sequence.of_list evs, s'))))
+  
   
