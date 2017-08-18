@@ -64,9 +64,11 @@ module State = struct
     Set.fold t.hosts ~init:t ~f:(fun t host ->
       if Random.State.float rs 1. < pct then fst (activate t rs host) else t)
 
-  let create rs time ~num_hosts ~pct_active =
+  let create rs time ~num_hosts ~pct_initially_active =
     let hosts = random_host_set rs num_hosts in
-    activate_pct { hosts; active = Host.Name.Map.empty; time } rs pct_active
+    activate_pct
+      { hosts; active = Host.Name.Map.empty; time } rs
+      pct_initially_active
 
   let snapshot t : Event.t Sequence.t =
     let open Sequence.Let_syntax in
@@ -144,8 +146,8 @@ module State = struct
 
 end
 
-let sequence rs time ~num_hosts ~pct_active =
-  let state = State.create rs time ~num_hosts ~pct_active in
+let sequence rs time ~num_hosts ~pct_initially_active =
+  let state = State.create rs time ~num_hosts ~pct_initially_active in
   let next_event = State.next_event state rs in
   Sequence.append
     (State.snapshot state)
