@@ -101,7 +101,7 @@ module State = struct
     let choose_check = chooser rs (equiprobable (Check_type.all : Check_type.t list)) in
     let update_type =
       chooser rs
-        [ 2  , Activate_host
+        [ 20 , Activate_host
         ; 90 , Check_success
         ; 8  , Check_fail
         ]

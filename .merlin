@@ -50,6 +50,7 @@ PKG sexplib.0
 PKG sexplib.unix
 PKG spawn
 PKG stdio
+PKG textutils
 PKG threads
 PKG threads.posix
 PKG typerep

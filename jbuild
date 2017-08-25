@@ -4,7 +4,14 @@
 
 (executables
  ((names (main))
-  (libraries (core async incremental_kernel incr_dom expect_test_helpers))
+  (libraries
+   (async 
+    core
+    expect_test_helpers
+    incr_dom 
+    incremental_kernel
+    textutils 
+    ))
   (preprocess (pps (ppx_jane)))
   (flags (:standard -short-paths))
   ))
