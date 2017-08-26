@@ -43,3 +43,10 @@ module Event = struct
   [@@deriving sexp, bin_io]
 end
 
+let events = 
+  Async.Rpc.Pipe_rpc.create ()
+    ~name:"events"
+    ~version:0 (* Unversioned *)
+    ~bin_query:[%bin_type_class: unit]
+    ~bin_response:[%bin_type_class: Event.t]
+    ~bin_error:[%bin_type_class: unit]
