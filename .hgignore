@@ -3,3 +3,4 @@ syntax: glob
 _build
 \#main.ml\#
 .\#*
+*.orig

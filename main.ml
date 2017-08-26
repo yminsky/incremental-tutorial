@@ -21,17 +21,6 @@ module Test = struct
     Sexp_pp.pp_out_channel Sexp_pp.Config.default stdout
       [%sexp (decoded n: State.t)]
 
-  let failed_checks n =
-    Map.filter_map (decoded n) ~f:(fun (_,checks) ->
-      let failures = 
-        Map.filter_map checks ~f:(fun (_,outcome) ->
-         match outcome with
-         | Some (Failed description) -> Some description
-         | None | Some Passed -> None
-      )
-      in
-      if Map.is_empty failures then None else Some failures)
-
   let command =
     let module Table = Textutils.Ascii_table in
     let open Command.Let_syntax in
