@@ -158,3 +158,11 @@ let sequence rs time ~num_hosts ~pct_initially_active =
           Some (Sequence.of_list evs, s'))))
   
   
+let stream rs time ~num_hosts ~pct_initially_active =
+  let sequence = ref (sequence rs time ~num_hosts ~pct_initially_active) in
+  stage (fun () ->
+    match Sequence.next !sequence with
+    | None -> assert false
+    | Some (x,sequence') ->
+      sequence := sequence';
+      x)

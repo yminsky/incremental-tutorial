@@ -2,43 +2,29 @@ open! Core
 open! Async
 open! Import
 
-(* CR sfunk: Pass this in as a command instead of hardcoding the values. *)
-(* module Config = struct *)
-(*   type t = { num_hosts: int *)
-(*            ; pct_initially_active: int *)
-(*            } *)
-(* end *)
-
-let events_impl ~(make_stream:unit -> (Time.t * Event.t) Sequence.t) =
+let events_impl ~(make_stream:unit -> (unit -> (Time.t * Event.t)) Staged.t) =
   Rpc.Pipe_rpc.implement Protocol.events (fun addr () ->
     Log.Global.info !"Client connected on %{sexp:Socket.Address.Inet.t}" addr;
-    let stream = make_stream () in
+    let next = unstage (make_stream ()) in
     let (r,w) = Pipe.create () in
-    let rec write_from_sequence stream =
-      match Sequence.next stream with
-      | None ->
-        Log.Global.error "Stream finished unexpectedly";
+    let rec write () =
+      let (time,event) = next () in
+      if Pipe.is_closed w then (
+        Log.Global.info !"Client disconnected %{sexp:Socket.Address.Inet.t}" addr;
         Deferred.unit
-      | Some ((time,event), stream) ->
-        if Pipe.is_closed w
-        then begin
-          Log.Global.info !"Client disconnected %{sexp:Socket.Address.Inet.t}" addr;
-          Deferred.unit
-        end else begin
-          let%bind () = at time in
-          let%bind () = Pipe.write w event in
-          write_from_sequence stream
-        end
+      ) else (
+        let%bind () = at time in
+        let%bind () = Pipe.write w event in
+        write ()
+      )
     in
-    don't_wait_for (write_from_sequence stream);
+    don't_wait_for (write ());
     return (Ok r))                                                      
-
 
 let implementations ~make_stream =
   Rpc.Implementations.create_exn
     ~implementations:[events_impl ~make_stream]
     ~on_unknown_rpc:`Raise
-
 
 let serve ~make_stream ~port =
   let%bind _tcp_server =
@@ -60,12 +46,11 @@ let go port =
     let time = Time.now () in
     let rs = Random.State.make_self_init () in
     (fun () ->
-      Generator.sequence
+      Generator.stream
         (Random.State.copy rs)
         time
         ~num_hosts:10
-        ~pct_initially_active:0.20
-    )
+        ~pct_initially_active:0.20)
   in
   let%bind () = serve ~make_stream ~port in
   Deferred.never ()
