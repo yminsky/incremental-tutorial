@@ -2,7 +2,22 @@ open! Core
 open! Async
 open! Import
 
-let run ~host ~port =
+module Failed_checks = struct
+  let print x =
+    print_s [%sexp (x : (Host.Name.t * Check.Name.t, string) Map.Poly.t)]
+
+  let observe state =
+    let failed_checks = Incr_view.failed_checks state in
+    let obs = Incr.observe failed_checks in
+    Incr.Observer.on_update_exn obs ~f:(fun update ->
+      let (_:int) = Core.Sys.command "clear" in
+      match update with
+      | Initialized v | Changed (_,v) -> print v
+      | Invalidated -> printf "------- STATE INVALIDATED -----------\n%!"
+    )
+end
+  
+let run ~host ~port which_query =
   Command_common.connect_and_process_events ~host ~port (fun pipe ->
     let state_v = Incr.Var.create State.empty in
     let pipe_finished = 
@@ -14,17 +29,11 @@ let run ~host ~port =
       )
     in
     let state = Incr.Var.watch state_v in
-    let failed_checks = Incr_view.failed_checks state in
-    let obs = Incr.observe failed_checks in
-    let print x =
-      print_s [%sexp (x : (Host.Name.t * Check.Name.t, string) Map.Poly.t)]
-    in
-    Incr.Observer.on_update_exn obs ~f:(fun update ->
-      let (_:int) = Core.Sys.command "clear" in
-      match update with
-      | Initialized v | Changed (_,v) -> print v
-      | Invalidated -> printf "------- STATE INVALIDATED -----------\n%!"
-    );
+    begin match which_query with
+    | `number_of_failed_checks
+    | `staleness -> failwith "Not implemented"
+    | `failed_checks_summary -> Failed_checks.observe state
+    end;
     pipe_finished
   )
 
@@ -33,5 +42,8 @@ let command =
   Command.async'
     ~summary:"Start client"
     [%map_open
-      let (host, port) = Command_common.host_and_port in
-      (fun () -> run ~host ~port)]
+      let (host, port) = Command_common.host_and_port
+      and which_query = Command_common.Query.flag
+      in
+      (fun () ->
+        run ~host ~port which_query)]

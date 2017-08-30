@@ -1,0 +1,8 @@
+Let's add a check that prints out all checks we consider 'stale', we
+have not seen an update for this (check,host) in the last Xs.
+
+To do this, we have to keep track of the last time we've seen an
+update for each (check,host) and whether that time is stale. We want
+to update this whenever we get a new [Event.t] from the server and
+register a time in the future to wake up to consider if the check is
+now stale.
