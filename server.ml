@@ -14,7 +14,7 @@ let events_impl ~(make_stream:unit -> (unit -> (Time.t * Event.t)) Staged.t) =
         Deferred.unit
       ) else (
         let%bind () = at time in
-        let%bind () = Pipe.write w event in
+        let%bind () = Pipe.write_if_open w event in
         write ()
       )
     in
