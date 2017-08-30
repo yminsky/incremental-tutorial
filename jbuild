@@ -1,0 +1,18 @@
+;; -*- scheme -*-
+
+(jbuild_version 1)
+
+(executables
+ ((names (main))
+  (libraries
+   (async 
+    core
+    expect_test_helpers
+    incr_map
+    incremental_kernel
+    textutils 
+    ))
+  (preprocess (pps (ppx_jane)))
+  (flags (:standard -short-paths))
+  ))
+
