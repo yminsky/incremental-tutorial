@@ -24,7 +24,7 @@ let host_kinds = [| "www"; "ws"; "grid"; "lb" |]
 let domain = [| "cs.oxford.uk"; "oxford.uk" |]
 
 let random_host rs =
-  let id = Random.State.int rs 100 in
+  let id = Random.State.int rs 1000 in
   Host.Name.of_string
     (rselect rs host_kinds ^ Int.to_string id ^ "." ^ rselect rs domain)
   
@@ -96,7 +96,7 @@ module State = struct
 
   type update_type = Activate_host | Check_success | Check_fail
 
-  let next_event t rs =
+  let next_event t ~time_scale rs =
     let choose_host = chooser rs (equiprobable (Set.to_list t.hosts)) in
     let choose_check = chooser rs (equiprobable (Check_type.all : Check_type.t list)) in
     let update_type =
@@ -107,10 +107,14 @@ module State = struct
         ]
     in
     (fun t ->
+       let time_delta =
+         Random.State.float rs (Time.Span.to_sec time_scale)
+         |> Time.Span.of_sec
+       in
        let t =
          { t with 
-           time = Time.add t.time
-                    (Time.Span.of_ms (Float.of_int (Random.State.int rs 1000))) }
+           time = Time.add t.time time_delta
+         }
        in
        let change_check outcome =
          let host = choose_host () in
@@ -146,9 +150,9 @@ module State = struct
 
 end
 
-let sequence rs time ~num_hosts ~pct_initially_active =
+let sequence rs time ~num_hosts ~pct_initially_active ~time_scale =
   let state = State.create rs time ~num_hosts ~pct_initially_active in
-  let next_event = State.next_event state rs in
+  let next_event = State.next_event state ~time_scale rs in
   Sequence.append
     (Sequence.map (State.snapshot state) ~f:(fun ev -> (time,ev)))
     (Sequence.join
@@ -158,8 +162,8 @@ let sequence rs time ~num_hosts ~pct_initially_active =
           Some (Sequence.of_list evs, s'))))
   
   
-let stream rs time ~num_hosts ~pct_initially_active =
-  let sequence = ref (sequence rs time ~num_hosts ~pct_initially_active) in
+let stream rs time ~num_hosts ~pct_initially_active ~time_scale =
+  let sequence = ref (sequence rs time ~num_hosts ~pct_initially_active ~time_scale) in
   stage (fun () ->
     match Sequence.next !sequence with
     | None -> assert false

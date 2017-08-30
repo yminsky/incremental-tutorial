@@ -7,4 +7,5 @@ val stream
   -> Time.t
   -> num_hosts:int
   -> pct_initially_active:float
+  -> time_scale:Time.Span.t
   -> (unit -> Time.t * Event.t) Staged.t

@@ -41,7 +41,7 @@ let serve ~make_stream ~port =
   Log.Global.info "Server started";
   Deferred.unit
   
-let go port =
+let go ~port ~num_hosts ~time_scale =
   let make_stream =
     let time = Time.now () in
     let rs = Random.State.make_self_init () in
@@ -49,8 +49,10 @@ let go port =
       Generator.stream
         (Random.State.copy rs)
         time
-        ~num_hosts:10
-        ~pct_initially_active:0.20)
+        ~num_hosts
+        ~pct_initially_active:0.20
+        ~time_scale
+    )
   in
   let%bind () = serve ~make_stream ~port in
   Deferred.never ()
@@ -60,9 +62,15 @@ let command =
   Command.async'
     ~summary:"start server"
     [%map_open
-     let port =
-       flag "port" (required int) ~doc:"INT port to listen for clients"
-     in
+      let port = 
+        flag "port" (required int) ~doc:"PORT port to listen for clients" 
+      and num_hosts =
+        flag "hosts" (optional_with_default 100 int)
+          ~doc:"N number of hosts to simulate"
+      and time_scale =
+        flag "time-scale" (optional_with_default (Time.Span.of_sec 0.01) time_span)
+          ~doc:"maximum time to the next event"
+      in
      fun () ->
-       go port 
+       go ~port ~num_hosts ~time_scale
     ]
