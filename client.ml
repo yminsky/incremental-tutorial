@@ -1,5 +1,6 @@
 open! Core
 open Async
+open Command_common
 
 (** Display an ASCII table with the number of failed checks for each host. *)
 module Simple_query = struct         
@@ -44,33 +45,15 @@ let process_events pipe =
       let state = State.update state event in
       Simple_query.update query state;
       return state)
+  |> Deferred.ignore
     
-let go ~port ~host =
-  Log.Global.info "Starting client";
-  Tcp.connect (Tcp.to_host_and_port host port)
-  >>= fun (_socket, reader, writer) ->
-  Log.Global.info "Connected to %s:%d" host port;
-  Rpc.Connection.with_close reader writer
-    ~connection_state:(fun _ -> ())
-    ~on_handshake_error:`Raise
-    ~dispatch_queries:(fun conn ->
-      let%bind (pipe, _metadata) = Rpc.Pipe_rpc.dispatch_exn Protocol.events conn () in
-      let%bind _final_state = process_events pipe in
-      Log.Global.error "Event pipe closed. Exiting";
-      Deferred.unit     
-    )
 
 let command =
   let open Command.Let_syntax in
   Command.async'
     ~summary:"start client"
     [%map_open
-     let port =
-       flag "port" (required int) ~doc:"INT port to connect to server"
-     and host =
-       flag "host" (optional_with_default "127.0.0.1" string)
-            ~doc:" host name (default:localhost)"
-     in         
+       let (host,port) = Command_common.host_and_port in
      fun () ->
-       go ~host ~port
-    ]  
+       connect_and_process_events process_events ~host ~port
+    ]

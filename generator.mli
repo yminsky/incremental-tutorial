@@ -7,4 +7,4 @@ val sequence
   -> Time.t
   -> num_hosts:int
   -> pct_initially_active:float
-  -> Event.t Sequence.t
+  -> (Time.t * Event.t) Sequence.t

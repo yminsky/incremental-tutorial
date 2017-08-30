@@ -1,5 +1,6 @@
 open! Core
 open! Async
+open! Import
 
 (* CR sfunk: Pass this in as a command instead of hardcoding the values. *)
 (* module Config = struct *)
@@ -8,29 +9,29 @@ open! Async
 (*            } *)
 (* end *)
 
-let events_impl ~make_stream =
-  Rpc.Pipe_rpc.implement Protocol.events
-    (fun addr () ->
-      Log.Global.info !"Client connected on %{sexp:Socket.Address.Inet.t}" addr;
-      let stream = make_stream () in
-      let (r,w) = Pipe.create () in
-      let rec write_from_sequence stream =
-        match Sequence.next stream with
-        | None ->
-           Log.Global.error "Stream finished unexpectedly";
-           Deferred.unit
-        | Some (event, stream) ->
-           if Pipe.is_closed w
-           then begin
-               Log.Global.info !"Client disconnected %{sexp:Socket.Address.Inet.t}" addr;
-               Deferred.unit
-             end else begin
-               let%bind () = Pipe.write w event in
-               write_from_sequence stream
-             end
-      in
-      don't_wait_for (write_from_sequence stream);
-      return (Ok r))                                                      
+let events_impl ~(make_stream:unit -> (Time.t * Event.t) Sequence.t) =
+  Rpc.Pipe_rpc.implement Protocol.events (fun addr () ->
+    Log.Global.info !"Client connected on %{sexp:Socket.Address.Inet.t}" addr;
+    let stream = make_stream () in
+    let (r,w) = Pipe.create () in
+    let rec write_from_sequence stream =
+      match Sequence.next stream with
+      | None ->
+        Log.Global.error "Stream finished unexpectedly";
+        Deferred.unit
+      | Some ((time,event), stream) ->
+        if Pipe.is_closed w
+        then begin
+          Log.Global.info !"Client disconnected %{sexp:Socket.Address.Inet.t}" addr;
+          Deferred.unit
+        end else begin
+          let%bind () = at time in
+          let%bind () = Pipe.write w event in
+          write_from_sequence stream
+        end
+    in
+    don't_wait_for (write_from_sequence stream);
+    return (Ok r))                                                      
 
 
 let implementations ~make_stream =

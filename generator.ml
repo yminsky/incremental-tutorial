@@ -150,10 +150,11 @@ let sequence rs time ~num_hosts ~pct_initially_active =
   let state = State.create rs time ~num_hosts ~pct_initially_active in
   let next_event = State.next_event state rs in
   Sequence.append
-    (State.snapshot state)
+    (Sequence.map (State.snapshot state) ~f:(fun ev -> (time,ev)))
     (Sequence.join
        (Sequence.unfold ~init:state ~f:(fun s ->
           let (s',evs) = next_event s in
+          let evs = List.map evs ~f:(fun ev -> (s'.time,ev)) in
           Some (Sequence.of_list evs, s'))))
   
   

@@ -8,7 +8,7 @@
    (async 
     core
     expect_test_helpers
-    incr_dom 
+    incr_map
     incremental_kernel
     textutils 
     ))

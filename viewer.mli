@@ -3,8 +3,8 @@ open! Core
 
 type 'display_state t
    
-val create :
-  print:('display_state -> unit)
+val create
+  :  print:('display_state -> unit)
   -> init:'display_state
   -> 'display_state t
 
