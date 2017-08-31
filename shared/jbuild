@@ -2,8 +2,8 @@
 
 (jbuild_version 1)
 
-(executables
- ((names (main))
+(library
+ ((name tutorial_shared)
   (libraries
    (async 
     core

@@ -1,7 +1,7 @@
 open! Core
 open Async
 
-let update_interval = Time.Span.of_sec 1.                   
+let update_interval = Time.Span.of_sec 0.2
                        
 type 'a t = { mutable data : 'a }
 
