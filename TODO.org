@@ -21,3 +21,4 @@
   the client has caught up with the stream. If we exposed a notion of
   [`Caught_up] in the sequence, we could silence this noise. It's
   probably not worth it though.
+* TODO Have a prominent link to the most-up-to-date documentation of Incremental, Core etc
