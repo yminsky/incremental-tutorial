@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-./build.sh && ./_build/default/main.exe
+# CR sfunk: We probably want to build an executable without the solutions in it.
+./build.sh && ./_build/default/solutions/main.exe
