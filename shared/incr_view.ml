@@ -68,31 +68,4 @@ let failed_checks (state : State.t Incr.t) =
       match check with
       | Some (Failed s) -> Some s
       | Some Passed | None -> None))
-  |> flatten_maps ~empty:Map.Poly.empty ~data_equal:String.equal
-    
-
-let f x y z ~what =
-  let%bind x = x in
-  let%bind y = y in
-  let%bind what = what in
-  match what with
-  | `Add -> return (x + y)
-  | `Multiply ->
-     let%map z = z in
-     x * y * z
-            
-let setup () =
-  let x = Incr.Var.create 50 in
-  let y = Incr.Var.create 120 in
-  let z = Incr.Var.create 250 in
-  let what = Incr.Var.create `Add in
-  let w = Incr.Var.watch in
-  let result =
-    f (w x) (w y) (w z) ~what:(w what)
-  in
-  Incr.Observer.on_update_exn (Incr.observe result)
-    ~f:(function
-        | Initialized v | Changed (_,v) -> printf "%d\n" v
-        | Invalidated -> printf "Invalidated");
-  
-  
+  |> flatten_maps ~empty:Map.Poly.empty ~data_equal:String.equal      
