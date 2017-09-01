@@ -1,0 +1,14 @@
+;; -*- scheme -*-
+
+(jbuild_version 1)
+
+(executables
+ ((names (simple incr))
+  (libraries
+   ( 
+    core
+    incremental_kernel
+    ))
+  (preprocess (pps (ppx_jane)))
+  (flags (:standard -short-paths))
+  ))

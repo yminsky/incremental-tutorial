@@ -1,0 +1,25 @@
+Now it's time look at a more real-world example!
+
+For the rest of this tutorial we are going to work on an application
+that monitors the state and the health of a collection of machines,
+e.g. all boxes in a datacenter.
+
+# CR sfunk: Explain more about the setup
+
+As a first simple query, we would like to keep track of the following information:
+
+1. total number of checks that succeeded / total number of checks run
+
+(This is across all hosts.) 
+
+Of course, this is such a simple query, that Incremental doesn't give
+us much. But it'll teach us the necessary steps for more interesting
+queries.
+
+For a non-incremental implementation of it, take a look at
+shared/client.ml:Number_of_failed_checks. You can run this with:
+
+./_build/solutions/main.exe client -port PORT -which-query number-of-failed-checks
+
+Again the goal of this exercise is to write a version of this query
+that uses Incremental.

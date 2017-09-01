@@ -1,0 +1,34 @@
+#+TITLE: Tutorial Notes
+
+* Problems
+
+- start with something that doesn't require maps; say, a small
+  fixed universe of hosts. This isn't going to use incremental in
+  an especially interesting way, but it's a good place to start.
+
+- Maybe even have an open universe of hosts, but have part of the
+  query be to select which hosts you actually look at. That's
+  static enough to avoid maps. You'll need an imperatively managed
+  table of data on the outside, though.
+
+- Various queries to push the model more, in particular:
+
+- find set of checks of a certain kind that failed (filter_map)
+
+- find set of stale nodes (clock + filter_map')
+
+- Rank queries? (nth-worst host?, median host?)
+
+- Merging examples? Drop rates on hosts with most highly loaded
+  switches?
+
+* Other Thoughts
+
+- Benchmarks! Make sure that we have all-at-once computations for each
+  of these.
+
+* Next Steps
+
+- Talk to Dlo and Perl about useful queries to implement.
+
+
