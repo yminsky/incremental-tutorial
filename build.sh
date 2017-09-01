@@ -1,4 +1,7 @@
+#!/usr/bin/env bash
+
 jbuilder build \
+	 exercises-unified/main.exe \
 	 solutions/main.exe \
 	 --dev 
 
