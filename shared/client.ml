@@ -125,7 +125,7 @@ let command =
   Command.async'
     ~summary:"start client"
     [%map_open
-      let (host,port) = Command_common.host_and_port
+      let (host,port) = Command_common.host_and_port_param
       and which_query = Command_common.Query.flag
       in
       fun () ->      
