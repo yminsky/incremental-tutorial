@@ -16,8 +16,6 @@ PKG bytes
 PKG core
 PKG core_kernel
 PKG core_kernel.base_for_tests
-PKG expect_test_helpers
-PKG expect_test_helpers_kernel
 PKG fieldslib
 PKG incr_map
 PKG incremental_kernel
@@ -36,8 +34,6 @@ PKG ppx_inline_test.config
 PKG ppx_inline_test.runtime-lib
 PKG re
 PKG re.emacs
-PKG re.pcre
-PKG re.perl
 PKG re.str
 PKG result
 PKG sexp_pretty

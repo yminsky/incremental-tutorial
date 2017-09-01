@@ -8,9 +8,9 @@
    (tutorial_shared
     async 
     core
-    expect_test_helpers
     incr_map
     incremental_kernel
+    sexp_pretty
     textutils 
     ))
   (preprocess (pps (ppx_jane)))
