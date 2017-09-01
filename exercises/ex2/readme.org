@@ -16,6 +16,8 @@ Of course, this is such a simple query, that Incremental doesn't give
 us much. But it'll teach us the necessary steps for more interesting
 queries.
 
+# CR sfunk: Actually implement the all at once check
+
 For a non-incremental implementation of it, take a look at
 shared/client.ml:Number_of_failed_checks. You can run this with:
 
