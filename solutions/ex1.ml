@@ -12,8 +12,8 @@ let f x y z ~what : int Incr.t =
      let%map z = z in
      x * y * z
             
-let () =
-  let x = Incr.Var.create 50 in
+let main x =
+  let x = Incr.Var.create x in
   let y = Incr.Var.create 120 in
   let z = Incr.Var.create 250 in
   let what = Incr.Var.create `Add in
@@ -38,5 +38,13 @@ let () =
   
   Incr.Var.set what `Multiply;
   Incr.stabilize ()
-  
+
+let command =
+  Command.basic'
+    ~summary:"Exercise 1"
+    (let open Command.Let_syntax in
+     [%map_open
+      let x = flag "x" (required int) ~doc:"INT value for x" in
+      fun () -> main x
+     ])
   
