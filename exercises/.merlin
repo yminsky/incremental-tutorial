@@ -1,4 +1,4 @@
-B ../_build/default/exercises-unified
+B ../_build/default/exercises
 B ../_build/default/shared
 FLG -ppx '/Users/yminsky/Documents/incremental-tutorial/_build/default/.ppx/ppx_jane/ppx.exe --as-ppx'
 FLG -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs -short-paths
