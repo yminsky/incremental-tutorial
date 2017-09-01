@@ -66,7 +66,7 @@ let print_s sexp =
 
 module Query = struct
   type t =
-    [ `number_of_failed_checks
+    [ `passed_checks
     | `failed_checks_summary
     | `staleness ]
     [@@deriving sexp, enumerate]
@@ -78,7 +78,7 @@ module Query = struct
     |> t_of_sexp
 
   let to_string = function
-    | `number_of_failed_checks -> "number-of-failed-checks"
+    | `passed_checks -> "passed-checks"
     | `failed_checks_summary -> "failed-checks-summary"
     | `staleness -> "staleness"
                               
