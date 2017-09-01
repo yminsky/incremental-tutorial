@@ -1,7 +1,8 @@
 open! Core
 open! Async
+open! Import
 
-let host_and_port =
+let host_and_port_param =
   let open Command.Let_syntax in
   [%map_open
     let port =
@@ -11,7 +12,6 @@ let host_and_port =
         ~doc:" host name (default:localhost)"
     in
     (host, port)]
-
 
 let connect_and_process_events process_events ~host ~port =
   Log.Global.info "Starting client";
@@ -28,11 +28,42 @@ let connect_and_process_events process_events ~host ~port =
       Deferred.unit     
     )
   
+let connect_and_view ~host ~port ~view ~print =
+  connect_and_process_events ~host ~port (fun pipe ->
+    let state_v = Incr.Var.create State.empty in
+    let pipe_finished = 
+      Pipe.iter' pipe  ~f:(fun events ->
+        Queue.iter events ~f:(fun event ->
+          Incr.Var.set state_v (State.update (Incr.Var.value state_v) event));
+        Incr.stabilize ();
+        return ()
+      )
+    in
+    let state = Incr.Var.watch state_v in
+    let view = view state in
+    let obs = Incr.observe view in
+    Incr.stabilize ();
+    let viewer = Viewer.create ~print ~init:(Incr.Observer.value_exn obs) in
+    Incr.Observer.on_update_exn obs ~f:(fun update ->
+      match update with
+      | Initialized v | Changed (_,v) -> Viewer.update viewer v
+      | Invalidated -> ()
+    );
+    pipe_finished
+  )
+
+let incr_command ~summary ~view ~print =
+  Command.async' ~summary
+    (let open Command.Let_syntax in
+     [%map_open
+       let (host, port) = host_and_port_param in
+       (fun () -> 
+          connect_and_view ~host ~port ~view ~print)])
+                     
 let print_s sexp =
   let module Sexp_pp = Sexp_pretty.Pretty_print in
   Sexp_pp.pp_out_channel Sexp_pp.Config.default stdout sexp
 
-                     
 module Query = struct
   type t =
     [ `number_of_failed_checks
