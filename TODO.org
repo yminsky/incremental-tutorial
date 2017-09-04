@@ -11,9 +11,6 @@
   failures. We should make the arrival rate of failures smaller, so we
   don't just got a big constant fraction with failures.
 
-* TODO make the imperative client print results on every state update
-
-  Currently it prints it in a fixed interval. This will skew the benchmark results.
 * TODO replaying the sequence will make lots of things look stale
 
   Since we replay the sequence upon start up of the client, lots of
