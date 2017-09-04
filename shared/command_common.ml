@@ -31,11 +31,13 @@ let connect_and_process_events process_events ~host ~port =
 let connect_and_view ~host ~port ~view ~print =
   connect_and_process_events ~host ~port (fun pipe ->
     let state_v = Incr.Var.create State.empty in
+    let counter = ref 0 in
     let pipe_finished = 
       Pipe.iter' pipe  ~f:(fun events ->
         Queue.iter events ~f:(fun event ->
-          Incr.Var.set state_v (State.update (Incr.Var.value state_v) event));
-        Incr.stabilize ();
+          Incr.Var.set state_v (State.update (Incr.Var.value state_v) event);
+          incr counter;
+          Incr.stabilize ());
         return ()
       )
     in
@@ -50,6 +52,9 @@ let connect_and_view ~host ~port ~view ~print =
       | Invalidated -> ()
     );
     pipe_finished
+    >>= fun () ->
+    Log.Global.info "Total events processed: %d\n" !counter;
+    Deferred.unit
   )
 
 let incr_command ~summary ~view ~print =
