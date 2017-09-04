@@ -14,4 +14,8 @@ let command =
     ~summary:"Failed view" 
     ~view:failed_checks
     ~print:(fun x ->
-      print_s [%sexp (x : string Check.Name.Map.t Host.Name.Map.t)])
+      let x =
+        Map.filter_map x ~f:(fun data ->
+         if Map.is_empty data then None else Some data)
+      in      
+      print_s [%sexp (x : string Check.Name.Map.t Host.Name.Map.t)] )
