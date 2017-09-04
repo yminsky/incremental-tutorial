@@ -1,5 +1,5 @@
 open! Core
-module Incr = Incremental_kernel.Incremental.Make ()
+open Import
 open Incr.Let_syntax
    
 let f x y z ~what : int Incr.t =
