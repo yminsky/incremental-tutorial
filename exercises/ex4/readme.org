@@ -7,4 +7,7 @@ to update this whenever we get a new [Event.t] from the server and
 register a time in the future to wake up to consider if the check is
 now stale.
 
-Take a look at shared/client.ml:Staleness for a non-incremental version.
+Take a look at shared/client.ml:Staleness for a non-incremental
+version. Note, the non-incremental version just recomputes what things
+are stale right before updating the output. Try using Incremental's
+[S_with_abstract_times] to calculate this more precisely.

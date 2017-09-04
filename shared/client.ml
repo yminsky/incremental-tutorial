@@ -20,7 +20,7 @@ module Passed_tests_over_total_tests = struct
       ~init:[]
 
   (* We don't use state.ml (like the examples below) yet as our query
-  is agnostic to hosts. *)
+     is agnostic to hosts. *)
   let process_events pipe =
     let viewer = create () in
     Pipe.fold ~init:[]
