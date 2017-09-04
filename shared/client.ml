@@ -3,40 +3,44 @@ open Async
 open Import
 open Command_common
 
-module Number_of_failed_checks = struct
-  type t = int [@@deriving sexp]
-         
-  let failed_checks (checks : State.checks) =
-    Map.filter checks
-      ~f:(fun (_,outcome) ->
-        match outcome with
-        | Some (Failed _description) -> true
-        | None | Some Passed -> false
-      )
-    |> Map.length
+module Passed_tests_over_total_tests = struct
+  type t = Check.Outcome.t list [@@deriving sexp]
 
-  let print t =
-    print_s [%sexp (t : t)]
+  let print (t:t) =
+    let passed_checks =
+      List.filter t ~f:(function | Passed -> true | Failed _ -> false)
+      |> List.length
+    in
+    let total_checks = List.length t in      
+    printf "%d passes / %d runs" passed_checks total_checks
 
   let create () =
     Viewer.create
       ~print
-      ~init:0
-    
-  let update viewer (state : State.t) =
-    let failed_checks : t =
-      Map.map state
-              ~f:(fun (_host_info, checks) -> failed_checks checks)
-      |> Map.fold ~init:0 ~f:(fun ~key:_ ~data acc -> data + acc)
-    in
-    Viewer.update viewer failed_checks
+      ~init:[]
+
+  (* We don't use state.ml (like the examples below) yet as our query
+     is agnostic to hosts. *)
+  let process_events pipe =
+    let viewer = create () in
+    Pipe.fold ~init:[]
+      pipe
+      ~f:(fun acc event ->
+        match event with
+        | Event.Host_info _
+        | Check (Register _) | Check (Unregister _) -> return acc
+        | Check (Report { outcome; _ }) ->
+           let acc = outcome :: acc in
+           Viewer.update viewer acc;
+           return acc)
+    |> Deferred.ignore    
 end
 
 module Failed_checks = struct
   type t = (Host.Name.t * Check.Name.t, string) Map.Poly.t [@@deriving sexp]
 
   let print t =
-    print_s [%sexp (t : t)]
+    print_s [%sexp (t : t)] 
 
   let create () =
     Viewer.create
@@ -99,26 +103,27 @@ end
 
                      
 let process_events pipe ~(which_query : Command_common.Query.t) =
-  let state = State.empty in
-  let update =
-    match which_query with
-    | `number_of_failed_checks ->
-       let query = Number_of_failed_checks.create () in
-       fun state -> Number_of_failed_checks.update query state
-    | `failed_checks_summary ->
-       let query = Failed_checks.create () in
-       fun state -> Failed_checks.update query state
-    | `staleness ->
-       let query = Staleness.create () in
-       fun state -> Staleness.update query state
-  in
-  Pipe.fold ~init:state pipe
-    ~f:(fun state event ->
-      let state = State.update state event in
-      update state;
-      return state)
-  |> Deferred.ignore
-    
+  match which_query with
+  | `passed_checks ->
+     Passed_tests_over_total_tests.process_events pipe
+  | `failed_checks_summary | `staleness as query ->
+     let update =
+       match query with
+       | `failed_checks_summary ->
+          let query = Failed_checks.create () in
+          fun state -> Failed_checks.update query state
+       | `staleness ->
+          let query = Staleness.create () in
+          fun state -> Staleness.update query state
+     in
+     let state = State.empty in
+     Pipe.fold ~init:state pipe
+          ~f:(fun state event ->
+            let state = State.update state event in
+            update state;
+            return state)
+     |> Deferred.ignore
+     
   
 let command =
   let open Command.Let_syntax in
