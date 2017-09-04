@@ -40,7 +40,7 @@ module Failed_checks = struct
   type t = (Host.Name.t * Check.Name.t, string) Map.Poly.t [@@deriving sexp]
 
   let print t =
-    print_s [%sexp (t : t)]
+    print_s [%sexp (t : t)] 
 
   let create () =
     Viewer.create
