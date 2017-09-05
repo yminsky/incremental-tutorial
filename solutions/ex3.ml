@@ -20,16 +20,16 @@ module Simple = struct
           | None | Some Passed -> false
           | Some (Failed _) -> true)
       in
-      if count = 0 then None else Some count
+      if count <= 1 then None else Some count
     )
 
   let process_events (events : Event.t Pipe.Reader.t) =
     let viewer = Viewer.create ~print:print_failure_counts in
     let state = ref State.empty in
     Pipe.iter' events ~f:(fun eventq ->
-      Queue.iter eventq ~f:(fun event ->
-        state := State.update !state event);
-      Viewer.update viewer (count_failures !state);
+      state := Queue.fold eventq ~init:!state ~f:State.update;
+      let failures = Viewer.compute viewer (fun () -> count_failures !state) in
+      Viewer.update viewer failures;
       return ()
     )
 end
@@ -45,7 +45,7 @@ module Incremental = struct
         | None | Some Passed -> false
         | Some (Failed _) -> true)
       in
-      if count = 0 then None else Some count
+      if count <= 1 then None else Some count
     )
 
   let process_events (events : Event.t Pipe.Reader.t) =
@@ -58,15 +58,11 @@ module Incremental = struct
       | Invalidated -> assert false
     );
     Pipe.iter' events ~f:(fun eventq ->
-      Incr.Var.set state
-        (Queue.fold eventq ~init:(Incr.Var.value state) ~f:State.update);
-      Incr.stabilize ();
+      Incr.Var.set state (Queue.fold eventq ~init:(Incr.Var.value state) ~f:State.update);
+      Viewer.compute viewer Incr.stabilize;
       Deferred.return ()
     )
-
 end
-
-
 
 (* Command line setup *)
 
