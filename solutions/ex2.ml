@@ -47,67 +47,68 @@ open! Core
 open! Async
 open! Import
 
+let print_passed_ratio passed_ratio = 
+  printf "passed_ratio: %.2F\n" passed_ratio
+
 module Simple = struct
-  type t = Check.Outcome.t list [@@deriving sexp]
 
-  let print (t:t) =
-    let passed_checks =
-      List.filter t ~f:(function Passed -> true | Failed _ -> false)
-      |> List.length
-    in
-    let total_checks = List.length t in      
-    printf "%d passes / %d runs" passed_checks total_checks
+  let passed_ratio ~total ~passed =
+    passed // total
 
-  (* We don't use state.ml (like the examples below) yet as our query
-     is agnostic to hosts. *)
   let process_events (pipe : Event.t Pipe.Reader.t) =
-    let viewer = Viewer.create ~print ~init:[] in
-    Pipe.fold ~init:[] pipe ~f:(fun acc event ->
+    let total  = ref 0 in
+    let passed = ref 0 in
+    let viewer = Viewer.create ~print:print_passed_ratio ~init:Float.nan in
+    Pipe.iter pipe ~f:(fun event ->
       match event with
-      | Host_info _ | Check (Register _) | Check (Unregister _) -> return acc
+      | Host_info _ | Check (Register _) | Check (Unregister _) -> return ()
       | Check (Report { outcome; _ }) ->
-        let acc = outcome :: acc in
-        Viewer.update viewer acc;
-        return acc)
-    |> Deferred.ignore    
+        begin match outcome with
+        | Passed -> incr passed; incr total
+        | Failed _ -> incr passed; incr total
+        end;
+        let result = passed_ratio ~total:(!total) ~passed:(!passed) in
+        Viewer.update viewer result;
+        return ()
+    )
 end
 
 module Incremental = struct
 
-  let process_events pipe =
+  let passed_ratio ~total ~passed =
     let open Incr.Let_syntax in
-    let print (p,t) = printf "Passed %d / Total %d\n" p t in
-    let viewer = Viewer.create ~print ~init:(0,0) in
-    let passed_checks = Incr.Var.create 0 in
-    let total_checks = Incr.Var.create 0 in
-    let result =
-      let%map passed = Incr.Var.watch passed_checks
-      and total = Incr.Var.watch total_checks
-      in
-      (passed,total)
+    let%map passed = passed and total = total in
+    passed // total
+  ;;
+
+  let process_events (pipe : Event.t Pipe.Reader.t) =
+    let total = Incr.Var.create 0 in
+    let passed = Incr.Var.create 0 in
+    let viewer = Viewer.create ~print:print_passed_ratio ~init:Float.nan in
+    let result = 
+      let (!) = Incr.Var.watch in
+      passed_ratio ~total:!total ~passed:!passed
+      |> Incr.observe 
     in
-    let obs = Incr.observe result in
-    Incr.Observer.on_update_exn obs ~f:(function
-      | Initialized v | Changed (_,v) ->
-        Viewer.update viewer v
+    Incr.Observer.on_update_exn result ~f:(function
+      | Initialized x | Changed (_,x) -> Viewer.update viewer x
       | Invalidated -> assert false
     );
     Pipe.iter pipe ~f:(fun event ->
       match event with
-      | Event.Host_info _
-      | Check (Register _) | Check (Unregister _) -> Deferred.unit
+      | Host_info _ | Check (Register _) | Check (Unregister _) -> return ()
       | Check (Report { outcome; _ }) ->
-        Incr.Var.set total_checks (Incr.Var.value total_checks + 1);
+        let incr i = Incr.Var.set i (1 + Incr.Var.value i) in
         begin match outcome with
-        | Passed -> Incr.Var.set passed_checks (Incr.Var.value passed_checks + 1)
-        | Failed _ -> ()
+        | Passed -> incr passed; incr total
+        | Failed _ -> incr passed; incr total
         end;
-        Incr.stabilize ();
-        Deferred.unit
+        return ()
     )
-    |> Deferred.ignore    
+  ;;
 end
 
+ (* From here on in is just command-line specification. *)
 let build_command ~summary process_events =
   Command.async' ~summary
     (let open Command.Let_syntax in

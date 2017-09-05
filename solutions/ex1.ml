@@ -72,9 +72,8 @@ let run () : unit =
   let what = Incr.Var.create Add in
   (* This is an all-at-once computation *)
   let result = 
-    let w = Incr.Var.watch in
-    f (w what) (w x) (w y) (w z)
-    |> Incr.observe
+    let (!) = Incr.Var.watch in
+    f !what !x !y !z |> Incr.observe
   in
   let compute () =
     Incr.stabilize ();
