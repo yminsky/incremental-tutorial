@@ -1,0 +1,7 @@
+syntax: glob
+*~
+_build
+\#*\#
+.\#*
+*.orig
+.merlin
