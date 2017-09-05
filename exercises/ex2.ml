@@ -55,7 +55,7 @@ module Simple = struct
   let process_events (pipe : Event.t Pipe.Reader.t) =
     let total  = ref 0 in
     let passed = ref 0 in
-    let viewer = Viewer.create ~print:print_passed_ratio ~init:Float.nan in
+    let viewer = Viewer.create ~print:print_passed_ratio in
     Pipe.iter pipe ~f:(fun event ->
       match event with
       | Host_info _ | Check (Register _) | Check (Unregister _) -> return ()

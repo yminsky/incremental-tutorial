@@ -14,10 +14,7 @@ module Passed_tests_over_total_tests = struct
     let total_checks = List.length t in      
     printf "%d passes / %d runs" passed_checks total_checks
 
-  let create () =
-    Viewer.create
-      ~print
-      ~init:[]
+  let create () = Viewer.create ~print
 
   (* We don't use state.ml (like the examples below) yet as our query
      is agnostic to hosts. *)
@@ -42,10 +39,7 @@ module Failed_checks = struct
   let print t =
     print_s [%sexp (t : t)] 
 
-  let create () =
-    Viewer.create
-      ~print
-      ~init:Map.Poly.empty
+  let create () = Viewer.create ~print
    
   let update viewer (state : State.t) =
     let failed_checks =
@@ -87,9 +81,7 @@ module Staleness = struct
       [%sexp (r : (Check.Name.t*Host.Name.t, [ `Stale_by of Time.Span.t | `Not_stale ])
                  Map.Poly.t)]
 
-  let create () =
-    let init = Map.Poly.empty in
-    Viewer.create ~print ~init
+  let create () = Viewer.create ~print
 
   let update viewer (state : State.t) =
     let t : t =
