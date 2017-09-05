@@ -1,0 +1,11 @@
+Previously for exercise 3, we've used maps of maps to represent checks
+inside hosts. I.e. [string Check.Name.t Host.Name.t Map.t Incr.t]
+represents the description of failed checks per host. The outer map
+(keyed by host-name) contains a map from check-name to description.
+
+Try writing a function to flatten this map into a single map that is
+keyed by a pair of (Check_name.t * Host.Name.t), i.e. the final type
+of the map should be:
+
+(string, Check.Name.t * Host.Name.t) Map.t Incr.t
+

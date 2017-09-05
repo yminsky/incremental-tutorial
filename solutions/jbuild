@@ -1,0 +1,19 @@
+;; -*- scheme -*-
+
+(jbuild_version 1)
+
+(executables
+ ((names (main))
+  (libraries
+   (tutorial_shared
+    async 
+    core
+    incr_map
+    incremental_kernel
+    textutils 
+    sexp_pretty
+    ))
+  (preprocess (pps (ppx_jane)))
+  (flags (:standard -short-paths))
+  ))
+

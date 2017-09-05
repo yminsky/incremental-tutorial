@@ -1,0 +1,25 @@
+* TODO Fix infinite loop when host# is too large
+
+  Right now, if you pick a very large number of hosts, the loop that
+  generates hosts will just loop forever, since there's a finite
+  universe that's available.
+
+* TODO Adjust stats so smaller number of hosts have failures.
+  
+  The views that you get when you subscribe to the data stream are
+  kinda too big now, if you look, for example, at the hosts with
+  failures. We should make the arrival rate of failures smaller, so we
+  don't just got a big constant fraction with failures.
+
+* TODO replaying the sequence will make lots of things look stale
+
+  Since we replay the sequence upon start up of the client, lots of
+  checks will initially look stale (compared to [Time.now ()]) until
+  the client has caught up with the stream. If we exposed a notion of
+  [`Caught_up] in the sequence, we could silence this noise. It's
+  probably not worth it though.
+
+  yminsky: You can just not display things until time has roughly
+  caught up with real-time, e.g., within a second.
+
+* TODO Have a prominent link to the most-up-to-date documentation of Incremental, Core etc
