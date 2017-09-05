@@ -10,7 +10,7 @@ let () =
     ; "ex3", Ex3.command
 (*
     ; "ex4", Ex4.command
-    ; "ex5", Ex5.command
 *)
+    ; "ex5", Ex5.command
     ]
   |> Command.run
