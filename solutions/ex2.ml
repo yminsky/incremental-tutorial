@@ -5,40 +5,37 @@
    application that monitors the state and the health of a collection
    of machines, e.g. all boxes in a datacenter.
 
-   To understand the setup, take a look at *shared/protocol.ml* which
+   To understand the setup, take a look at [shared/protocol.ml] which
    contain the protocol that the client receives from the server.
 
    You do not need to look at [shared/server.ml] or
    [shared/generator.ml] in any detail.
 
-   As a first simple query, we would like to keep track of the
-   following information:
+   As a first simple query, we would like to report the ratio
+   [passed/total], where [passed] is the number of notifications of
+   checks that have passed, and [total] is the total number of check
+   notifications, including both passes and failures.
 
-   total number of checks that passed / total number of checks run
+   As before, we provide an implementation that doesn't use
+   [Incremental], which tracks [passed] and [total] using references,
+   and computes the ratio directly each time.
 
-   (This is across all hosts.)
-
-   Of course, if you actually had to do this, you would just keep
-   track of two integers, rather than using anything in
-   Incremental. But for the purpose of this exercise, let's do this by
-   building up state that keeps track of all checks and their
-   outcome. Every time we update the state we also iterate over it to
-   find the updated answer.
-
-   For a non-incremental implementation, take a look at
-   shared/client.ml:Passed_tests_over_total_tests. You can run this
-   with:
+   You can run this implementation as follows.
 
    {v
     ./_build/exercises/main.exe server -port 8080 &
     ./_build/exercises/main.exe ex2 simple -port 8080
    v}
 
-   The goal of this exercise is to write a version of this query that
-   uses Incremental, which you can run as follows:
+   The goal of this exercise is to write your own version that uses
+   [Incremental]. The idea is to track [passed] and [total] as
+   incremental values, and have the ratio be an [Incremental]
+   computation on top of those values. Note that this is no faster
+   than the original. The goal here is only to see how to set things
+   up.
 
    {v
-    ./_build/exercises/main.exe ex2 simple -port 8080
+    ./_build/exercises/main.exe ex2 incremental -port 8080
    v}
 
 *)
