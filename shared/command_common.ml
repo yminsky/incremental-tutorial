@@ -45,7 +45,7 @@ let connect_and_view ~host ~port ~view ~print =
     let view = view state in
     let obs = Incr.observe view in
     Incr.stabilize ();
-    let viewer = Viewer.create ~print ~init:(Incr.Observer.value_exn obs) in
+    let viewer = Viewer.create ~print in
     Incr.Observer.on_update_exn obs ~f:(fun update ->
       match update with
       | Initialized v | Changed (_,v) -> Viewer.update viewer v
