@@ -1,8 +1,0 @@
-Let's start with something very simple. Take a look at *simple.ml*. It
-should be straightforward to follow this function and you can run its
-executable by using "build.sh" at the top-level.
-
-The goal of this exercise is to finish the implementation of
-*incr.ml*, an incrementalized version of this program that behaves in
-exactly the same way, i.e. its output is unchanged. But we want to use
-incremental to represent the computation.

@@ -18,4 +18,8 @@
   the client has caught up with the stream. If we exposed a notion of
   [`Caught_up] in the sequence, we could silence this noise. It's
   probably not worth it though.
+
+  yminsky: You can just not display things until time has roughly
+  caught up with real-time, e.g., within a second.
+
 * TODO Have a prominent link to the most-up-to-date documentation of Incremental, Core etc
