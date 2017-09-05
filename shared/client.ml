@@ -20,16 +20,14 @@ module Passed_tests_over_total_tests = struct
      is agnostic to hosts. *)
   let process_events pipe =
     let viewer = create () in
-    Pipe.fold ~init:[]
-      pipe
-      ~f:(fun acc event ->
+    Pipe.fold ~init:[] pipe ~f:(fun acc event ->
         match event with
         | Event.Host_info _
         | Check (Register _) | Check (Unregister _) -> return acc
         | Check (Report { outcome; _ }) ->
-           let acc = outcome :: acc in
-           Viewer.update viewer acc;
-           return acc)
+          let acc = outcome :: acc in
+          Viewer.update viewer acc;
+          return acc)
     |> Deferred.ignore    
 end
 
