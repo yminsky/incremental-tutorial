@@ -43,7 +43,7 @@ let simple_run () =
 (* [f] is supposed to take in incrementals and return
    incrementals. Here, we want to use bind on the [what] argument to
    choose which of the two computations to do.*)
-let f (x:int Incr.t) (y: int Incr.t) (z:int Incr.t) ~(what:what_operation Incr.t)
+let f (what:what_operation Incr.t) (x:int Incr.t) (y: int Incr.t) (z:int Incr.t)
   : int Incr.t 
   =
   ignore (x,y,z,what);

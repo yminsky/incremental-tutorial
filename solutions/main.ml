@@ -1,13 +1,17 @@
 open! Core
-open! Async
 open! Import
-   
-let () =
+
+let () = 
   Command.group
-    ~summary:"main"
+    ~summary:"Command line API"
     [ "server", Server.command
     ; "client", Client.command
-    ; "incr-client", Incr_client.command
+    ; "ex1", Ex1.command
+(*
+   ; "ex2", Ex2.command
+    ; "ex3", Ex3.command
+    ; "ex4", Ex4.command
+    ; "ex5", Ex5.command
+*)
     ]
   |> Command.run
-  
