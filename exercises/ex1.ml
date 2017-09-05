@@ -14,34 +14,54 @@ open! Incr.Let_syntax
    
 type what_operation = Multiply | Add
 
-let simple_f x y z ~what =
-  let res =
-    match what with
-    | `Multiply -> x * y * z
-    | `Add -> x + y
-  in
-  printf "%d\n" res
-
-let simple_run () =
-  let x = 50 in
-  let y = 120 in
-  let z = 250 in
-  let what = `Add in
-  simple_f x y z ~what; (* Prints 170 *)
-  let x = 150 in
-  let y = 90 in
-  simple_f x y z ~what; (* Prints 240 *)
-  let what = `Multiply in
-  simple_f x y z ~what; (* Prints 337500 *)
+let simple_f what x y z =
+  match what with
+  | Multiply -> x * y * z
+  | Add -> x + y
 ;;
 
-(* These are the functions you need to implement *)
-let f x y z ~what : int Incr.t =
+let simple_run () =
+  let x = ref 50 in
+  let y = ref 120 in
+  let z = ref 250 in
+  let what = ref Add in
+  (* This is an all-at-once computation *)
+  let compute () =
+    printf "%d\n" (simple_f !what !x !y !z)
+  in
+  compute ();
+  x := 150;
+  y := 90;
+  compute ();
+  what := Multiply;
+  compute ();
+;;
+
+(* These are the functions you need to implement incrementally. *)
+
+
+(* [f] is supposed to take in incrementals and return
+   incrementals. Here, we want to use bind on the [what] argument to
+   choose which of the two computations to do.*)
+let f (x:int Incr.t) (y: int Incr.t) (z:int Incr.t) ~(what:what_operation Incr.t)
+  : int Incr.t 
+  =
   ignore (x,y,z,what);
   failwith "implement me"
+;;    
 
-let run () =
+(* The structure of [run[ should follow that of [simple_run] above
+   closely, except:
+
+   - OCaml references should be replcaed with [Incr.Var.t]'s
+   - [f] should be called just once
+   - An observer should be created based on the result of [f]
+   - [Incr.stabilize] needs to be called as part of [compute]
+   - [compute] should then get its value using [Incr.Observer.value_exn].
+*)
+let run () : unit =
   failwith "implement me"
+;;
 
 
 (* From here on is the declaration of the command-line interface,
