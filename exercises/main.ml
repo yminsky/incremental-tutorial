@@ -5,7 +5,6 @@ let () =
   Command.group
     ~summary:"Command line API"
     [ "server", Server.command
-    ; "client", Client.command
     ; "ex1", Ex1.command
     ; "ex2", Ex2.command
 (*
