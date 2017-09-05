@@ -37,7 +37,7 @@ end
 
 module Incremental = struct
 
-  let count_failures (s:State.t Incr.t) =
+  let count_failures (s:State.t Incr.t) : int Host.Name.Map.t Incr.t =
     Incr_map.filter_mapi s ~f:(fun ~key:_ ~data:(_,checks) ->
       let count = 
       Map.count checks ~f:(fun (_,check_opt) ->
@@ -48,7 +48,7 @@ module Incremental = struct
       if count <= 1 then None else Some count
     )
 
-  let process_events (events : Event.t Pipe.Reader.t) =
+  let process_events (events : Event.t Pipe.Reader.t) : unit Deferred.t =
     let viewer = Viewer.create ~print:print_failure_counts in
     let state = Incr.Var.create State.empty in
     let result = Incr.observe (count_failures (Incr.Var.watch state)) in
