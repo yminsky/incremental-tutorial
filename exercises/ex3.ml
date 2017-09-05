@@ -1,6 +1,6 @@
 (* Now we want to look at more interesting queries. For this exercise,
    we'll display a per-host count of the number of checks that are
-   currently passed or failed. 
+   currently passed or failed, including only failed nodes.
 *)
 
 open! Core
@@ -37,32 +37,20 @@ end
 
 module Incremental = struct
 
-  let count_failures (s:State.t Incr.t) =
-    Incr_map.filter_mapi s ~f:(fun ~key:_ ~data:(_,checks) ->
-      let count = 
-      Map.count checks ~f:(fun (_,check_opt) ->
-        match check_opt with
-        | None | Some Passed -> false
-        | Some (Failed _) -> true)
-      in
-      if count = 0 then None else Some count
-    )
+  (* In this version, we'll need to replace [Map.filter_map] with
+     [Incr.filter_mapi]. (It's [filter_mapi] instead of [filter_map] only
+     because [Incr_map] happens not to have a [filter_map] function.  *)
 
-  let process_events (events : Event.t Pipe.Reader.t) =
-    let viewer = Viewer.create ~print:print_failure_counts in
-    let state = Incr.Var.create State.empty in
-    let result = Incr.observe (count_failures (Incr.Var.watch state)) in
-    Incr.Observer.on_update_exn result ~f:(fun update ->
-      match update with
-      | Initialized x | Changed (_,x) -> Viewer.update viewer x
-      | Invalidated -> assert false
-    );
-    Pipe.iter' events ~f:(fun eventq ->
-      Incr.Var.set state
-        (Queue.fold eventq ~init:(Incr.Var.value state) ~f:State.update);
-      Incr.stabilize ();
-      Deferred.return ()
-    )
+  let count_failures (s:State.t Incr.t) : int Host.Name.Map.t Incr.t =
+    ignore s;
+    failwith "implement me!"
+
+  (* The structure of process_events will be fairly similar to the
+     corresponding function in exercise 2 *)
+
+  let process_events (events : Event.t Pipe.Reader.t) : unit Deferred.t =
+    ignore events;
+    failwith "implement me!"
 
 end
 
