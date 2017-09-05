@@ -74,18 +74,9 @@ end
 
 (* From here on is the declaration of the command-line interface,
    which you can mostly ignore for the purposes of the tutorial. *)
-
-let make_command ~summary run =
-  Command.basic' ~summary (Command.Param.return run)
-
-let simple_command =
-  make_command ~summary:"all-at-once implementation" Simple.run
-
-let incremental_command =
-  make_command ~summary:"incremental implementation" Incremental.run
-
 let command =
+  let cmd ~summary run = Command.basic' ~summary (Command.Param.return run) in
   Command.group ~summary:"Exercise 1"
-    [ "simple"      , simple_command
-    ; "incremental" , incremental_command
+    [ "simple"      , cmd ~summary:"all-at-once implementation" Simple.run
+    ; "incremental" , cmd ~summary:"incremental implementation" Incremental.run
     ]
