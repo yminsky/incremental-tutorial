@@ -75,7 +75,7 @@ end
 
 module Incremental = struct
 
-  let passed_ratio ~total ~passed =
+  let passed_ratio ~(total: int Incr.t) ~(passed: int Incr.t) : float Incr.t =
     let open Incr.Let_syntax in
     let%map passed = passed and total = total in
     passed // total

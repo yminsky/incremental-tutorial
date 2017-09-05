@@ -29,10 +29,87 @@
    shared/client.ml:Passed_tests_over_total_tests. You can run this
    with:
 
-   ./_build/exercises/main.exe server -port 8080 &
-
-   ./_build/exercises/main.exe client -port 8080 -which-query passed-checks
+   {v
+    ./_build/exercises/main.exe server -port 8080 &
+    ./_build/exercises/main.exe ex2 simple -port 8080
+   v}
 
    The goal of this exercise is to write a version of this query that
-   uses Incremental.
+   uses Incremental, which you can run as follows:
+
+   {v
+    ./_build/exercises/main.exe ex2 simple -port 8080
+   v}
+
 *)
+
+open! Core
+open! Async
+open! Import
+
+let print_passed_ratio passed_ratio = 
+  printf "passed_ratio: %.2F\n" passed_ratio
+
+module Simple = struct
+
+  let passed_ratio ~total ~passed =
+    passed // total
+
+  let process_events (pipe : Event.t Pipe.Reader.t) =
+    let total  = ref 0 in
+    let passed = ref 0 in
+    let viewer = Viewer.create ~print:print_passed_ratio ~init:Float.nan in
+    Pipe.iter pipe ~f:(fun event ->
+      match event with
+      | Host_info _ | Check (Register _) | Check (Unregister _) -> return ()
+      | Check (Report { outcome; _ }) ->
+        begin match outcome with
+        | Passed -> incr passed; incr total
+        | Failed _ -> incr passed; incr total
+        end;
+        let result = passed_ratio ~total:(!total) ~passed:(!passed) in
+        Viewer.update viewer result;
+        return ()
+    )
+end
+
+module Incremental = struct
+
+  (* Do an incremental version of the passed_ratio computation *)
+  let passed_ratio ~(total: int Incr.t) ~(passed: int Incr.t) : float Incr.t =
+    ignore total; ignore passed;
+    failwith "implement me"
+  ;;
+
+  (* Do an incremental version of process events, that uses
+     incremental variables instead of references. *)
+  let process_events (pipe : Event.t Pipe.Reader.t) =
+    ignore pipe;
+    failwith "implement me"
+  ;;
+end
+
+ (* From here on in is just command-line specification. *)
+let build_command ~summary process_events =
+  Command.async' ~summary
+    (let open Command.Let_syntax in
+     [%map_open
+       let (host, port) = Command_common.host_and_port_param in
+       fun () -> 
+         Command_common.connect_and_process_events 
+           process_events ~host ~port
+     ])
+
+let simple = 
+  build_command ~summary:"Simple, all-at-once implementation"
+    Simple.process_events
+
+let incremental =
+  build_command ~summary:"Incremental implementation"
+    Incremental.process_events
+
+let command =
+  Command.group ~summary:"Exercise 2"
+    [ "simple", simple
+    ; "incremental", incremental
+    ]
