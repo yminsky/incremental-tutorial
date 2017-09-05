@@ -56,10 +56,10 @@ let f (what:what_operation Incr.t) (x:int Incr.t) (y: int Incr.t) (z:int Incr.t)
     x + y
 ;;    
 
-(* The structure of [run[ should follow that of [simple_run] above
+(* The structure of [run] should follow that of [simple_run] above
    closely, except:
 
-   - OCaml references should be replcaed with [Incr.Var.t]'s
+   - OCaml references should be replaced with [Incr.Var.t]'s
    - [f] should be called just once
    - An observer should be created based on the result of [f]
    - [Incr.stabilize] needs to be called as part of [compute]
