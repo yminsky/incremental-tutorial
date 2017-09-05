@@ -77,7 +77,7 @@ let incremental =
     Incremental.process_events
 
 let command =
-  Command.group ~summary:"Exercise 2"
+  Command.group ~summary:"Exercise 3"
     [ "simple", simple
     ; "incremental", incremental
     ]
