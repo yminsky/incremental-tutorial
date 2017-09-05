@@ -1,50 +1,106 @@
+(* Let's start with something very simple. Take a look at [simple_f]
+   and [simple_run] below. Your goal is to write incremental verisons
+   of these functions, called [f] and [run]. It should have the same
+   behavior, but uses incremental to express the computation.
+
+   Note that we don't expect a practical performance improvement here.
+   the goal is just to get a sense of how to use the Incremental
+   primitives.
+*)
+
 open! Core
-open Import
-open Incr.Let_syntax
+open! Import
+open! Incr.Let_syntax
    
-let f x y z ~what : int Incr.t =
-  let%bind x = x in
-  let%bind y = y in
+type what_operation = Multiply | Add
+
+let simple_f what x y z =
+  match what with
+  | Multiply -> x * y * z
+  | Add -> x + y
+;;
+
+let simple_run () =
+  let x = ref 50 in
+  let y = ref 120 in
+  let z = ref 250 in
+  let what = ref Add in
+  (* This is an all-at-once computation *)
+  let compute () =
+    printf "%d\n" (simple_f !what !x !y !z)
+  in
+  compute ();
+  x := 150;
+  y := 90;
+  compute ();
+  what := Multiply;
+  compute ();
+;;
+
+(* These are the functions you need to implement incrementally. *)
+
+
+(* [f] is supposed to take in incrementals and return
+   incrementals. Here, we want to use bind on the [what] argument to
+   choose which of the two computations to do.*)
+let f (what:what_operation Incr.t) (x:int Incr.t) (y: int Incr.t) (z:int Incr.t)
+  : int Incr.t 
+  =
   let%bind what = what in
   match what with
-  | `Add -> return (x + y)
-  | `Multiply ->
-     let%map z = z in
-     x * y * z
-            
-let main x =
-  let x = Incr.Var.create x in
+  | Multiply -> 
+    let%map x = x and y = y and z = z in
+    x * y * z
+  | Add ->
+    let%map x = x and y = y in
+    x + y
+;;    
+
+(* The structure of [run[ should follow that of [simple_run] above
+   closely, except:
+
+   - OCaml references should be replcaed with [Incr.Var.t]'s
+   - [f] should be called just once
+   - An observer should be created based on the result of [f]
+   - [Incr.stabilize] needs to be called as part of [compute]
+   - [compute] should then get its value using [Incr.Observer.value_exn].
+*)
+let run () : unit =
+  let x = Incr.Var.create 50 in
   let y = Incr.Var.create 120 in
   let z = Incr.Var.create 250 in
-  let what = Incr.Var.create `Add in
-  let w = Incr.Var.watch in
-  let result =
-    f (w x) (w y) (w z) ~what:(w what)
+  let what = Incr.Var.create Add in
+  (* This is an all-at-once computation *)
+  let result = 
+    let w = Incr.Var.watch in
+    f (w what) (w x) (w y) (w z)
+    |> Incr.observe
   in
-  let obs = Incr.observe result in
-  Incr.Observer.on_update_exn obs
-    ~f:(function
-        | Initialized v | Changed (_,v) -> printf "%d\n" v
-        | Invalidated ->
-           (* CR sfunk: Need a comment to explain what's going on here. *)
-           assert false);
-  Incr.stabilize ();
+  let compute () =
+    Incr.stabilize ();
+    printf "%d\n" (Incr.Observer.value_exn result)
+  in
+  compute ();
   Incr.Var.set x 150;
   Incr.Var.set y 90;
-  Incr.stabilize ();
-  Incr.Var.set z 100;
-  Incr.stabilize ();
-  (* Note that this prints nothing as z isn't yet used! *)
-  
-  Incr.Var.set what `Multiply;
-  Incr.stabilize ()
+  compute ();
+  Incr.Var.set what Multiply;
+  compute ();
+;;
+
+
+(* From here on is the declaration of the command-line interface,
+   which you can mostly ignore for the purposes of the tutorial. *)
+let simple_command =
+  Command.basic' ~summary:"all-at-once implementation"
+    (Command.Param.return (fun () -> simple_run ()))
+
+let incr_command =
+  Command.basic' ~summary:"incremental implementation"
+    (Command.Param.return (fun () -> run ()))
 
 let command =
-  Command.basic'
-    ~summary:"Exercise 1"
-    (let open Command.Let_syntax in
-     [%map_open
-      let x = flag "x" (required int) ~doc:"INT value for x" in
-      fun () -> main x
-     ])
-  
+  Command.group ~summary:"Exercise 1"
+    [ "simple"      , simple_command
+    ; "incremental" , incr_command
+    ]
