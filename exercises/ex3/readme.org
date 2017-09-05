@@ -1,0 +1,6 @@
+Now we want to look at more interesting queries. For this exercise, we
+want to display - per host - the names and descriptions of checks that
+are currently failing.
+
+Again, take a look at shared/client.ml:Failed_checks for a
+non-incremental implementation.
