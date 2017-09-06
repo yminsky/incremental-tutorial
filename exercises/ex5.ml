@@ -24,7 +24,7 @@ let print_failure_descriptions c =
 module Simple = struct
 
   let failed_checks (state : State.t) () =
-    Map.fold ~init:Map.Poly.empty state ~f:(fun ~key:host_info ~data:(_,checks) acc ->
+    Map.fold ~init:Map.Poly.empty state.hosts ~f:(fun ~key:host_info ~data:(_,checks) acc ->
         Map.fold checks ~init:acc ~f:(fun ~key:check_name ~data:(_,outcome) acc ->
             match (outcome : Protocol.Check.Outcome.t option) with
             | None | Some Passed -> acc

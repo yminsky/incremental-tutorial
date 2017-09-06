@@ -13,7 +13,7 @@ let print_failure_counts c =
 module Simple = struct
 
   let count_failures (s:State.t) =
-    Map.filter_map s ~f:(fun (_,checks) ->
+    Map.filter_map s.hosts ~f:(fun (_,checks) ->
       let count = 
         Map.count checks ~f:(fun (_,check_opt) ->
           match check_opt with
@@ -38,7 +38,8 @@ end
 module Incremental = struct
 
   let count_failures (s:State.t Incr.t) : int Host.Name.Map.t Incr.t =
-    Incr_map.filter_mapi s ~f:(fun ~key:_ ~data:(_,checks) ->
+    let open Incr.Let_syntax in
+    Incr_map.filter_mapi (s >>| State.hosts) ~f:(fun ~key:_ ~data:(_,checks) ->
       let count = 
       Map.count checks ~f:(fun (_,check_opt) ->
         match check_opt with
