@@ -5,13 +5,21 @@
 
    The tricky bit however comes from how we want to represent this:
 
-   You could imagine having a [string Check.Name.t Host.Name.t Map.t
-   Incr.t] to represent this. I.e. the outer map (keyed by host-name)
-   contains a map from check-name to description.
+   You could imagine having a 
+   {v 
+      string Check.Name.t Host.Name.t Map.t Incr.t
+   v}
+
+   to represent this, i.e. the outer map (keyed by hostname)
+   contains a map from check name to description.
 
    But for the purpose of this exercise, let's represent this as a
-   'flat' map of type [string (Check_name.t * Host.Name.t) Map.t
-   Incr.t]
+   /flat/ map of type 
+
+   {v 
+      string (Check_name.t * Host.Name.t) Map.t Incr.t
+   v}
+
 *)
 
 open! Core

@@ -34,9 +34,9 @@ though they're not strictly necessary:
 - utop
 
 A final note: if you don't have an editor that's nicely set up to work
-with OCaml, We recommend Visual Studio Code, which is surprisingly
+with OCaml, we recommend Visual Studio Code, which is surprisingly
 easy to set up. In particular, Merlin and ocp-indent work correctly
-pretty much out of the box. I think having good auto-completion and
+pretty much out of the box. Having good auto-completion and
 type-throwback will make this tutorial more rewarding.
 
 If you're an emacs or vim-user, you can try opam's user-setup package,
