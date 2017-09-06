@@ -1,7 +1,6 @@
-(* Let's start with something very simple. Take a look at [simple_f]
-   and [simple_run] below. Your goal is to write incremental verisons
-   of these functions, called [f] and [run]. It should have the same
-   behavior, but uses incremental to express the computation.
+(* Let's start with something very simple. Take a look at the
+   functions in [Simple]. Your goal is to write incremental verisons
+   of these same functions.
 
    Note that we don't expect a practical performance improvement here.
    the goal is just to get a sense of how to use the Incremental
@@ -12,30 +11,30 @@ open! Core
 open! Import
 open! Incr.Let_syntax
 
-type what_operation = Multiply | Add
+type what_to_show = Volume | Footprint
 
 module Simple = struct
 
-  let f what x y z =
+  let metric what ~w ~h ~d =
     match what with
-    | Multiply -> x * y * z
-    | Add -> x + y
+    | Volume -> w * h * d
+    | Footprint -> w * d
   ;;
 
   let run () =
-    let x = ref 50 in
-    let y = ref 120 in
-    let z = ref 250 in
-    let what = ref Add in
+    let height = ref 50 in
+    let width  = ref 120 in
+    let depth  = ref 250 in
+    let what = ref Footprint in
     (* This is an all-at-once computation *)
     let compute () =
-      printf "%d\n" (f !what !x !y !z)
+      printf "%d\n" (metric !what ~w:!width ~h:!height ~d:!depth)
     in
     compute ();
-    x := 150;
-    y := 90;
+    height := 150;
+    width := 90;
     compute ();
-    what := Multiply;
+    what := Volume;
     compute ();
   ;;
 
@@ -43,17 +42,11 @@ end
 
 module Incremental = struct
 
-  (* These are the functions you need to implement incrementally. *)
-
-
-  (* [f] is supposed to take in incrementals and return
-     incrementals. Here, we want to use bind on the [what] argument to
-     choose which of the two computations to do.*)
-  let f (what:what_operation Incr.t) (x:int Incr.t) (y: int Incr.t) (z:int Incr.t)
+  let metric (what:what_to_show Incr.t) ~(w:int Incr.t) ~(h: int Incr.t) ~(d:int Incr.t)
     : int Incr.t 
     =
-    ignore (x,y,z,what);
-    failwith "implement me"
+    ignore what; ignore w; ignore h; ignore d;
+    failwith "implement me!"
   ;;    
 
   (* The structure of [run] should follow that of [simple_run] above
@@ -66,11 +59,10 @@ module Incremental = struct
      - [compute] should then get its value using [Incr.Observer.value_exn].
   *)
   let run () : unit =
-    failwith "implement me"
+    failwith "implement me!"
   ;;
 
 end
-
 
 (* From here on is the declaration of the command-line interface,
    which you can mostly ignore for the purposes of the tutorial. *)
