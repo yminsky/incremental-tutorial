@@ -10,6 +10,7 @@
     core
     incr_map
     incremental_kernel
+    incremental
     sexp_pretty
     textutils 
     ))

@@ -1,4 +1,4 @@
-module Incr = Incremental_kernel.Incremental.Make ()
+module Incr = Incremental_lib.Incremental.Make ()
 module Incr_map = Incr_map.Make (Incr)
 include Protocol
 
