@@ -1,0 +1,44 @@
+#+TITLE: On-line Applications with Incremental
+
+This repo is the basis of a tutorial that is being given at
+CUFP 2017. The repo is organized around using incremental for writing
+part of a monitoring system, similar in spirit to NagiOS.
+
+The repo is organized into three directories:
+
+- /shared/, containing a library to be used in writing tutorial
+  examples. This provides the basic data model for our monitoring
+  application, a server which will provide the data, and a basic
+  non-incremental client for displaying views of that data stream.
+
+- /exercises/, which contains exercise descriptions, and is where
+  you'll develop your own solutions.
+
+- /solutions/, similar to exercises, but containing our answers to the
+  problems.
+
+In order to complete the tutorial, there are some opam packages you'll
+need to install; in particular:
+
+- async
+- incremental
+- textutils
+- sexp_pretty
+- incr_map
+
+You'll also probably benefit from having these packages installed,
+though they're not strictly necessary:
+
+- ocp-indent
+- merlin
+- utop
+
+A final note: if you don't have an editor that's nicely set up to work
+with OCaml, we recommend Visual Studio Code, which is surprisingly
+easy to set up. In particular, Merlin and ocp-indent work correctly
+pretty much out of the box. Having good auto-completion and
+type-throwback will make this tutorial more rewarding.
+
+If you're an emacs or vim-user, you can try opam's user-setup package,
+which can do a decent job of configuring both emacs and vim for use
+with Merlin and ocp-indent.
