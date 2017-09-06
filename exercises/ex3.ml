@@ -29,7 +29,8 @@ module Simple = struct
     Pipe.iter' events ~f:(fun eventq ->
       Queue.iter eventq ~f:(fun event ->
         state := State.update !state event);
-      Viewer.update viewer (count_failures !state);
+      let failures = Viewer.compute viewer (fun () -> count_failures !state) in
+      Viewer.update viewer failures;
       return ()
     )
 end

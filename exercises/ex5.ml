@@ -23,7 +23,7 @@ let print_failure_descriptions c =
 
 module Simple = struct
 
-  let failed_checks (state : State.t) =
+  let failed_checks (state : State.t) () =
     Map.fold ~init:Map.Poly.empty state ~f:(fun ~key:host_info ~data:(_,checks) acc ->
         Map.fold checks ~init:acc ~f:(fun ~key:check_name ~data:(_,outcome) acc ->
             match (outcome : Protocol.Check.Outcome.t option) with
@@ -37,8 +37,9 @@ module Simple = struct
     let state = ref State.empty in
     Pipe.iter' events ~f:(fun eventq ->
       Queue.iter eventq ~f:(fun event ->
-        state := State.update !state event);
-      Viewer.update viewer (failed_checks !state);
+            state := State.update !state event);
+      let update = Viewer.compute viewer (failed_checks !state) in
+      Viewer.update viewer update;
       return ()
     )
 end
