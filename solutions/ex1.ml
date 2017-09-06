@@ -1,7 +1,6 @@
-(* Let's start with something very simple. Take a look at [simple_f]
-   and [simple_run] below. Your goal is to write incremental verisons
-   of these functions, called [f] and [run]. It should have the same
-   behavior, but uses incremental to express the computation.
+(* Let's start with something very simple. Take a look at the
+   functions in [Simple]. Your goal is to write incremental verisons
+   of these same functions.
 
    Note that we don't expect a practical performance improvement here.
    the goal is just to get a sense of how to use the Incremental
@@ -12,30 +11,30 @@ open! Core
 open! Import
 open! Incr.Let_syntax
 
-type what_operation = Multiply | Add
+type what_to_show = Volume | Footprint
 
 module Simple = struct
 
-  let f what x y z =
+  let metric what ~w ~h ~d =
     match what with
-    | Multiply -> x * y * z
-    | Add -> x + y
+    | Volume -> w * h * d
+    | Footprint -> w * d
   ;;
 
   let run () =
-    let x = ref 50 in
-    let y = ref 120 in
-    let z = ref 250 in
-    let what = ref Add in
+    let height = ref 50 in
+    let width  = ref 120 in
+    let depth  = ref 250 in
+    let what = ref Footprint in
     (* This is an all-at-once computation *)
     let compute () =
-      printf "%d\n" (f !what !x !y !z)
+      printf "%d\n" (metric !what ~w:!width ~h:!height ~d:!depth)
     in
     compute ();
-    x := 150;
-    y := 90;
+    height := 150;
+    width := 90;
     compute ();
-    what := Multiply;
+    what := Volume;
     compute ();
   ;;
 
@@ -43,20 +42,16 @@ end
 
 module Incremental = struct
 
-  (* [f] is supposed to take in incrementals and return
-     incrementals. Here, we want to use bind on the [what] argument to
-     choose which of the two computations to do.*)
-  let f (what:what_operation Incr.t) (x:int Incr.t) (y: int Incr.t) (z:int Incr.t)
+  let metric (what:what_to_show Incr.t) ~(w:int Incr.t) ~(h: int Incr.t) ~(d:int Incr.t)
     : int Incr.t 
     =
-    let%bind what = what in
-    match what with
-    | Multiply -> 
-      let%map x = x and y = y and z = z in
-      x * y * z
-    | Add ->
-      let%map x = x and y = y in
-      x + y
+    match%bind what with
+    | Volume -> 
+      let%map w = w and h = h and d = d in
+      w * h * d
+    | Footprint ->
+      let%map w = w and d = d in
+      w * d
   ;;    
 
   (* The structure of [run] should follow that of [simple_run] above
@@ -69,24 +64,25 @@ module Incremental = struct
      - [compute] should then get its value using [Incr.Observer.value_exn].
   *)
   let run () : unit =
-    let x = Incr.Var.create 50 in
-    let y = Incr.Var.create 120 in
-    let z = Incr.Var.create 250 in
-    let what = Incr.Var.create Add in
+    let (!) = Incr.Var.watch in
+    let (:=) = Incr.Var.set in
+    let height = Incr.Var.create 50 in
+    let width  = Incr.Var.create 120 in
+    let depth  = Incr.Var.create 250 in
+    let what = Incr.Var.create Footprint in
     (* This is an all-at-once computation *)
     let result = 
-      let (!) = Incr.Var.watch in
-      f !what !x !y !z |> Incr.observe
+      metric !what ~w:!width ~h:!height ~d:!depth |> Incr.observe
     in
     let compute () =
       Incr.stabilize ();
       printf "%d\n" (Incr.Observer.value_exn result)
     in
     compute ();
-    Incr.Var.set x 150;
-    Incr.Var.set y 90;
+    height := 150;
+    Incr.Var.set width 90;
     compute ();
-    Incr.Var.set what Multiply;
+    what := Volume;
     compute ();
   ;;
 
