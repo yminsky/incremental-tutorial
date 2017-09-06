@@ -45,8 +45,11 @@ end
 
 
 module Incremental = struct
-  open Incr.Let_syntax
+  open! Incr.Let_syntax
 
+  (* First, let's write a helper function that applies [f]
+     incrementally to [inc] but keeps track of the input and output of
+     the last time [f] ran. You will need to use a [ref] here. *)
   let diff_map i ~f =
     let old = ref None in
     let%map a = i in
@@ -54,6 +57,17 @@ module Incremental = struct
     old := Some (a, b);
     b
     
+  (* Next, let's write the function to flatten [State.t Incr.t] into a
+     map keyed by [Host.Name.t * Check.Name.t]. (Incr_map has a
+     [flatten] function built in, but we want to ignore that and write
+     this from first principals.)
+
+     The basic idea is to use [diff_map] to find all the keys that
+     were added, removed or changed between the old and current input,
+     and apply those changes to the old output to get the new output.
+
+     Check out [Map.symmetric diff] for an efficient way of
+     calculating diffs between maps.  *)
   let flatten_maps
       (mm : State.t Incr.t)
     : (Host.Name.t * Check.Name.t,Time.t * Check.Outcome.t option,_) Map.t Incr.t
@@ -92,6 +106,7 @@ module Incremental = struct
               | `Remove key -> Map.remove acc key)
       )
 
+  (* Use [flatten_maps] here to compute the final result. *)
   let failed_checks (s:State.t Incr.t) : (Host.Name.t * Check.Name.t, string) Map.Poly.t Incr.t =
     Incr_map.filter_mapi (flatten_maps s) ~f:(fun ~key:_ ~data:(_,check_opt) ->
         match check_opt with
@@ -142,7 +157,7 @@ let incremental =
     Incremental.process_events
 
 let command =
-  Command.group ~summary:"Exercise 3"
+  Command.group ~summary:"Exercise 5"
     [ "simple", simple
     ; "incremental", incremental
     ]

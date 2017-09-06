@@ -45,15 +45,26 @@ end
 
 
 module Incremental = struct
-  open Incr.Let_syntax
+  open! Incr.Let_syntax
 
-  let diff_map i ~f =
-    let old = ref None in
-    let%map a = i in
-    let b = f ~old:!old a in
-    old := Some (a, b);
-    b
-    
+  (* First, let's write a helper function that applies [f]
+     incrementally to [inc] but keeps track of the input and output of
+     the last time [f] ran. You will need to use a [ref] here. *)
+  let diff_map (inc : 'a Incr.t) ~(f : old:('a * 'b) option -> 'a -> 'b) : 'b Incr.t =
+    ignore (inc, f);
+    failwith "Implement me"
+
+  (* Next, let's write the function to flatten [State.t Incr.t] into a
+     map keyed by [Host.Name.t * Check.Name.t]. (Incr_map has a
+     [flatten] function built in, but we want to ignore that and write
+     this from first principals.)
+
+     The basic idea is to use [diff_map] to find all the keys that
+     were added, removed or changed between the old and current input,
+     and apply those changes to the old output to get the new output.
+
+     Check out [Map.symmetric diff] for an efficient way of
+     calculating diffs between maps.  *)
   let flatten_maps
       (mm : State.t Incr.t)
     : (Host.Name.t * Check.Name.t,Time.t * Check.Outcome.t option,_) Map.t Incr.t
@@ -62,13 +73,13 @@ module Incremental = struct
     failwith "implement me"
 
 
+  (* Use [flatten_maps] here to compute the final result. *)
   let failed_checks (s:State.t Incr.t) : (Host.Name.t * Check.Name.t, string) Map.Poly.t Incr.t =
     ignore s;
     failwith "implement me"
 
   (* The structure of process_events will be fairly similar to the
      corresponding function in exercise 3 *)
-
   let process_events (events : Event.t Pipe.Reader.t) : unit Deferred.t =
     ignore events;
     failwith "implement me"
@@ -98,7 +109,7 @@ let incremental =
     Incremental.process_events
 
 let command =
-  Command.group ~summary:"Exercise 3"
+  Command.group ~summary:"Exercise 5"
     [ "simple", simple
     ; "incremental", incremental
     ]
