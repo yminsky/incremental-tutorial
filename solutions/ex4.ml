@@ -10,7 +10,6 @@ type result = Time.t Check.Name.Map.t Host.Name.Map.t
 let print_result x =
   print_s [%sexp (x : result)]
 
-
 module Simple = struct
   let stale_checks (s:State.t) ~(thresh:Time.Span.t) : result =
     Map.filter_map s.hosts ~f:(fun (_,check) ->
