@@ -6,6 +6,7 @@
    The tricky bit however comes from how we want to represent this:
 
    You could imagine having a 
+
    {v 
       string Check.Name.t Host.Name.t Map.t Incr.t
    v}
