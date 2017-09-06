@@ -1,4 +1,13 @@
-(* Compute the set of stale checks for each host *)
+(* In this exercise, we'll compute the set of stale checks for each
+   host. Specifically, a check is considered stale if it hasn't been
+   updated for the last X seconds, for a configured threshold X.
+
+   To do this, we have to keep track of the last time we've seen an
+   update for each (check,host) and whether that time is stale. We
+   want to update this whenever we get a new [Event.t] from the server
+   and register a time in the future to wake up to consider if the
+   check is now stale.
+*)
 
 open! Core
 open! Async
