@@ -49,36 +49,12 @@ end
 module Incremental = struct
 
   let stale_checks (s:State.t Incr.t) ~(thresh:Time.Span.t) : result Incr.t =
-    let open Incr.Let_syntax in
-    Incr_map.filter_mapi' (s >>| State.hosts) ~f:(fun ~key:_ ~data ->
-      let map = 
-        Incr_map.filter_mapi' (data >>| snd) ~f:(fun ~key:_ ~data ->
-          let%bind (time,_) = data in
-          match%map Incr.at (Time.add time thresh) with
-          | Before -> None
-          | After -> Some time
-        )
-      in
-      let%map map = map in
-      if Map.is_empty map then None else Some map
-    )
+    ignore s; ignore thresh;
+    failwith "Implement me!"
 
   let process_events (events : Event.t Pipe.Reader.t) ~(thresh:Time.Span.t) : unit Deferred.t =
-    let module Var = Incr.Var in
-    let viewer = Viewer.create ~print:print_result in
-    let state = Incr.Var.create State.empty in
-    let result = Incr.observe (stale_checks ~thresh (Incr.Var.watch state)) in
-    Incr.Observer.on_update_exn result ~f:(function
-      | Initialized x | Changed (_,x) -> Viewer.update viewer x
-      | Invalidated -> assert false
-    );
-    Pipe.iter' events ~f:(fun eventq ->
-      Incr.Var.set state
-        (Queue.fold eventq ~init:(Var.value state) ~f:State.update);
-      Incr.advance_clock ~to_:(Incr.Var.value state).time;
-      Viewer.compute viewer Incr.stabilize;
-      return ()
-    )
+    ignore events; ignore thresh;
+    assert false
 end
 
 
