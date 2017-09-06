@@ -74,9 +74,11 @@ module State = struct
     let open Sequence.Let_syntax in
     let%bind (host,(info,checks)) = Map.to_sequence t.active in
     let%bind (check,(when_checked,outcome)) = Map.to_sequence checks in
-    Sequence.of_list [ Event.Host_info info
-                     ; Event.Check (Register { host; check })
-                     ; Event.Check (Report {host; check; when_checked; outcome})]
+    Sequence.of_list 
+      [ Event.create t.time (Host_info info)
+      ; Event.create t.time (Check (Register { host; check }))
+      ; Event.create t.time (Check (Report {host; check; when_checked; outcome}))
+      ]
 
   let chooser rs options =
     let options = List.map options ~f:(fun (w,v) -> (Int.to_float w,v)) in
@@ -127,11 +129,13 @@ module State = struct
            let when_checked = t.time in
            let register =
              if Map.mem checks check then []
-             else [Event.Check (Register { host; check })]
+             else [Event.create t.time (Check (Register { host; check }))]
            in
            let checks = Map.add checks ~key:check ~data:(when_checked,outcome) in
            let active = Map.add t.active ~key:host ~data:(info,checks) in
-           let report = [ Event.Check (Report { host; check; when_checked; outcome }) ] in
+           let report = [ Event.create t.time
+                            (Check (Report { host; check; when_checked; outcome }))]
+           in
            ({ t with active}, register @ report)
        in
        match update_type () with
@@ -141,7 +145,7 @@ module State = struct
          | Some _ -> (t,[])
          | None ->
            let (t,info) = activate t rs host in
-           let events = [ Event.Host_info info ] in
+           let events = [ Event.create t.time (Host_info info) ] in
            (t,events)
          )
        | Check_success -> change_check (fun _ -> Passed)

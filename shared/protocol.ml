@@ -37,10 +37,15 @@ module Check = struct
 end
 
 module Event = struct
-  type t = 
+  type event = 
     | Check of Check.Event.t
     | Host_info of Host.Info.t
   [@@deriving sexp, bin_io]
+
+  type t = { time: Time.t; ev: event }
+  [@@deriving sexp, bin_io]
+
+  let create time ev = { time; ev }
 end
 
 let events = 

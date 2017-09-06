@@ -13,7 +13,7 @@ let print_failure_counts c =
 module Simple = struct
 
   let count_failures (s:State.t) =
-    Map.filter_map s ~f:(fun (_,checks) ->
+    Map.filter_map s.hosts ~f:(fun (_,checks) ->
       let count = 
         Map.count checks ~f:(fun (_,check_opt) ->
           match check_opt with

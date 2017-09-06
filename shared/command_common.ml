@@ -25,7 +25,7 @@ let connect_and_process_events process_events ~host ~port =
       let%bind (pipe, _metadata) = Rpc.Pipe_rpc.dispatch_exn Protocol.events conn () in
       let%bind () = process_events pipe in
       Log.Global.error "Event pipe closed. Exiting";
-      Deferred.unit     
+      Deferred.unit
     )
   
 let connect_and_view ~host ~port ~view ~print =

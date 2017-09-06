@@ -18,11 +18,11 @@ module Passed_tests_over_total_tests = struct
 
   (* We don't use state.ml (like the examples below) yet as our query
      is agnostic to hosts. *)
-  let process_events pipe =
+  let process_events (pipe : Event.t Pipe.Reader.t) =
     let viewer = create () in
     Pipe.fold ~init:[] pipe ~f:(fun acc event ->
-        match event with
-        | Event.Host_info _
+        match event.ev with
+        | Host_info _
         | Check (Register _) | Check (Unregister _) -> return acc
         | Check (Report { outcome; _ }) ->
           let acc = outcome :: acc in
@@ -41,7 +41,7 @@ module Failed_checks = struct
    
   let update viewer (state : State.t) =
     let failed_checks =
-      Map.map state ~f:(fun (_host_info, checks) ->
+      Map.map state.hosts ~f:(fun (_host_info, checks) ->
         Map.filter_map checks ~f:(fun (_,outcome) ->
          match outcome with
          | Some (Failed description) -> Some description
@@ -83,16 +83,17 @@ module Staleness = struct
 
   let update viewer (state : State.t) =
     let t : t =
-      Map.fold ~init:Map.Poly.empty state ~f:(fun ~key:host_name ~data:(_hi, checks) acc ->
-        Map.fold ~init:acc checks ~f:(fun ~key:check_name ~data:(time, _outcome) acc ->
-           Map.add acc ~key:(check_name, host_name) ~data:time
+      Map.fold ~init:Map.Poly.empty state.hosts
+        ~f:(fun ~key:host_name ~data:(_hi, checks) acc ->
+          Map.fold ~init:acc checks ~f:(fun ~key:check_name ~data:(time, _outcome) acc ->
+            Map.add acc ~key:(check_name, host_name) ~data:time
        ))
     in
     Viewer.update viewer t
 end
 
                      
-let process_events pipe ~(which_query : Command_common.Query.t) =
+let process_events (pipe : Event.t Pipe.Reader.t)  ~(which_query : Command_common.Query.t) =
   match which_query with
   | `passed_checks ->
      Passed_tests_over_total_tests.process_events pipe

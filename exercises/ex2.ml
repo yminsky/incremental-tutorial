@@ -57,7 +57,7 @@ module Simple = struct
     let passed = ref 0 in
     let viewer = Viewer.create ~print:print_passed_ratio in
     Pipe.iter pipe ~f:(fun event ->
-      match event with
+      match event.ev with
       | Host_info _ | Check (Register _) | Check (Unregister _) -> return ()
       | Check (Report { outcome; _ }) ->
         begin match outcome with

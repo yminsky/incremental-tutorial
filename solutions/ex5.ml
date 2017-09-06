@@ -24,7 +24,7 @@ let print_failure_descriptions c =
 module Simple = struct
 
   let failed_checks (state : State.t) () =
-    Map.fold ~init:Map.Poly.empty state ~f:(fun ~key:host_info ~data:(_,checks) acc ->
+    Map.fold ~init:Map.Poly.empty state.hosts ~f:(fun ~key:host_info ~data:(_,checks) acc ->
         Map.fold checks ~init:acc ~f:(fun ~key:check_name ~data:(_,outcome) acc ->
             match (outcome : Protocol.Check.Outcome.t option) with
             | None | Some Passed -> acc
@@ -73,7 +73,7 @@ module Incremental = struct
       (mm : State.t Incr.t)
     : (Host.Name.t * Check.Name.t,Time.t * Check.Outcome.t option,_) Map.t Incr.t
     =
-    diff_map mm ~f:(fun ~old input ->
+    diff_map (mm >>| State.hosts) ~f:(fun ~old input ->
         match old with
         | None -> 
           Map.fold input ~init:Map.Poly.empty  ~f:(fun ~key:key1 ~data:(_,data) acc ->
