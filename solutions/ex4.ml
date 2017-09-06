@@ -2,11 +2,15 @@
    host. Specifically, a check is considered stale if it hasn't been
    updated for the last X seconds, for a configured threshold X.
 
-   To do this, we have to keep track of the last time we've seen an
-   update for each (check,host) and whether that time is stale. We
-   want to update this whenever we get a new [Event.t] from the server
-   and register a time in the future to wake up to consider if the
-   check is now stale.
+   The all-at-once implementation below should give you a sense of
+   what the semantics should be, but implementing this efficiently and
+   incrementally is non-trivial.  In particular, if you just use the
+   current time in a naive way, then you'll have to do work linear in
+   the number of hosts every time you refresh the computation.
+
+   To do this efficiently, you'll want to use Incremental's support
+   for time. You'll want to make use of [Incr.advance_clock] and
+   [Incr.at].
 *)
 
 open! Core
