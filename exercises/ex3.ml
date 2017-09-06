@@ -29,7 +29,8 @@ module Simple = struct
     Pipe.iter' events ~f:(fun eventq ->
       Queue.iter eventq ~f:(fun event ->
         state := State.update !state event);
-      Viewer.update viewer (count_failures !state);
+      let failures = Viewer.compute viewer (fun () -> count_failures !state) in
+      Viewer.update viewer failures;
       return ()
     )
 end
@@ -77,7 +78,7 @@ let incremental =
     Incremental.process_events
 
 let command =
-  Command.group ~summary:"Exercise 2"
+  Command.group ~summary:"Exercise 3"
     [ "simple", simple
     ; "incremental", incremental
     ]
