@@ -39,7 +39,7 @@ end
 module Incremental = struct
 
   (* In this version, we'll need to replace [Map.filter_map] with
-     [Incr.filter_mapi]. (It's [filter_mapi] instead of [filter_map] only
+     [Incr_map.filter_mapi]. (It's [filter_mapi] instead of [filter_map] only
      because [Incr_map] happens not to have a [filter_map] function.  *)
 
   let count_failures (s:State.t Incr.t) : int Host.Name.Map.t Incr.t =
