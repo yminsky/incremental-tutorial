@@ -73,9 +73,10 @@ module Incremental = struct
      and apply those changes to the old output to get the new output.
 
      Check out [Map.symmetric diff] for an efficient way of
-     calculating diffs between maps.  *)
+     calculating diffs between maps. The goal here is to be
+     incremental with respect to both the innter and outer map.  *)
   let flatten_maps
-      (mm : State.t Incr.t)
+        (mm : State.t Incr.t)
     : (Host.Name.t * Check.Name.t,Time.t * Check.Outcome.t option,_) Map.t Incr.t
     =
     ignore mm;
