@@ -42,6 +42,11 @@ end
 
 module Incremental = struct
 
+  (* This should return the result as an incremental.
+
+     Note, it's worth thinking about what the incremental graph looks
+     like. E.g. if [watch=Footprint] then a change to [h] should not
+     cause this node to refire. *)
   let metric (what:what_to_show Incr.t) ~(w:int Incr.t) ~(h: int Incr.t) ~(d:int Incr.t)
     : int Incr.t 
     =
