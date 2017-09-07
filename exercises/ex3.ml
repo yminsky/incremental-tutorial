@@ -1,6 +1,6 @@
 (* Now we want to look at more interesting queries. For this exercise,
    we'll display a per-host count of the number of checks that are
-   currently passed or failed, including only failed nodes.
+   currently failing, including only nodes that have a least one failure.
 *)
 
 open! Core
