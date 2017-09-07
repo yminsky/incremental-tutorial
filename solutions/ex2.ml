@@ -62,7 +62,7 @@ module Simple = struct
       | Check (Report { outcome; _ }) ->
         begin match outcome with
         | Passed -> incr passed; incr total
-        | Failed _ -> incr passed; incr total
+        | Failed _ -> incr total
         end;
         let result = passed_ratio ~total:(!total) ~passed:(!passed) in
         Viewer.update viewer result;
@@ -98,7 +98,7 @@ module Incremental = struct
         let incr i = Incr.Var.set i (1 + Incr.Var.value i) in
         begin match outcome with
         | Passed -> incr passed; incr total
-        | Failed _ -> incr passed; incr total
+        | Failed _ -> incr total
         end;
         return ()
     )
