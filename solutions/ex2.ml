@@ -92,7 +92,7 @@ module Incremental = struct
       | Invalidated -> assert false
     );
     Pipe.iter pipe ~f:(fun event ->
-      match event.ev with
+      begin match event.ev with
       | Host_info _ | Check (Register _) | Check (Unregister _) -> return ()
       | Check (Report { outcome; _ }) ->
         let incr i = Incr.Var.set i (1 + Incr.Var.value i) in
@@ -100,7 +100,9 @@ module Incremental = struct
         | Passed -> incr passed; incr total
         | Failed _ -> incr total
         end;
+        Incr.stabilize ();
         return ()
+      end;
     )
   ;;
 end
