@@ -80,7 +80,7 @@ module Incremental = struct
     in
     compute ();
     height := 150;
-    Incr.Var.set width 90;
+    width := 90;
     compute ();
     what := Volume;
     compute ();
