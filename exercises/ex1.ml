@@ -53,8 +53,8 @@ module Incremental = struct
      closely, except:
 
      - OCaml references should be replaced with [Incr.Var.t]'s
-     - [f] should be called just once
-     - An observer should be created based on the result of [f]
+     - [metric] should be called just once
+     - An observer should be created based on the result of [metric]
      - [Incr.stabilize] needs to be called as part of [compute]
      - [compute] should then get its value using [Incr.Observer.value_exn].
   *)
