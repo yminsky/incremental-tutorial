@@ -41,10 +41,10 @@ module Incremental = struct
     let open Incr.Let_syntax in
     Incr_map.filter_mapi (s >>| State.hosts) ~f:(fun ~key:_ ~data:(_,checks) ->
       let count = 
-      Map.count checks ~f:(fun (_,check_opt) ->
-        match check_opt with
-        | None | Some Passed -> false
-        | Some (Failed _) -> true)
+        Map.count checks ~f:(fun (_,check_opt) ->
+          match check_opt with
+          | None | Some Passed -> false
+          | Some (Failed _) -> true)
       in
       if count <= 1 then None else Some count
     )

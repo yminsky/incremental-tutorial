@@ -91,18 +91,18 @@ module Incremental = struct
       | Initialized x | Changed (_,x) -> Viewer.update viewer x
       | Invalidated -> assert false
     );
-    Pipe.iter pipe ~f:(fun event ->
-      begin match event.ev with
-      | Host_info _ | Check (Register _) | Check (Unregister _) -> return ()
-      | Check (Report { outcome; _ }) ->
-        let incr i = Incr.Var.set i (1 + Incr.Var.value i) in
-        begin match outcome with
-        | Passed -> incr passed; incr total
-        | Failed _ -> incr total
-        end;
-        Incr.stabilize ();
-        return ()
-      end;
+    Pipe.iter' pipe ~f:(fun eventq ->
+      Queue.iter eventq ~f:(fun event ->
+        match event.ev with
+        | Host_info _ | Check (Register _) | Check (Unregister _) -> ()
+        | Check (Report { outcome; _ }) ->
+          let incr i = Incr.Var.set i (1 + Incr.Var.value i) in
+          begin match outcome with
+          | Passed -> incr passed; incr total
+          | Failed _ -> incr total
+          end);
+      Incr.stabilize ();
+      return ()
     )
   ;;
 end

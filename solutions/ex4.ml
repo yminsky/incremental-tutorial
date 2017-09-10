@@ -51,7 +51,7 @@ module Incremental = struct
   let stale_checks (s:State.t Incr.t) ~(thresh:Time.Span.t) : result Incr.t =
     let open Incr.Let_syntax in
     Incr_map.filter_mapi' (s >>| State.hosts) ~f:(fun ~key:_ ~data ->
-      let map = 
+      let%map map = 
         Incr_map.filter_mapi' (data >>| snd) ~f:(fun ~key:_ ~data ->
           let%bind (time,_) = data in
           match%map Incr.at (Time.add time thresh) with
@@ -59,7 +59,6 @@ module Incremental = struct
           | After -> Some time
         )
       in
-      let%map map = map in
       if Map.is_empty map then None else Some map
     )
 
