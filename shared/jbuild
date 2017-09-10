@@ -12,7 +12,6 @@
     incremental_kernel
     incremental
     sexp_pretty
-    textutils 
     ))
   (preprocess (pps (ppx_jane)))
   (flags (:standard -short-paths))

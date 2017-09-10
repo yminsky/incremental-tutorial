@@ -1,8 +1,9 @@
 #+TITLE: On-line Applications with Incremental
 
-This repo is the basis of a tutorial that is being given at
-CUFP 2017. The repo is organized around using incremental for writing
-part of a monitoring system, similar in spirit to NagiOS.
+This repo is the basis of a tutorial that was given at CUFP 2017. The
+tutorial shows you how to use Incremental, a library for building
+efficient on-line algorithms, for writing a simple monitoring system,
+similar in spirit to NagiOS.
 
 The repo is organized into three directories:
 
@@ -22,7 +23,6 @@ need to install; in particular:
 
 - async
 - incremental
-- textutils
 - sexp_pretty
 - incr_map
 

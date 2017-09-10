@@ -10,7 +10,6 @@
     core
     incr_map
     incremental_kernel
-    textutils 
     sexp_pretty
     ))
   (preprocess (pps (ppx_jane)))

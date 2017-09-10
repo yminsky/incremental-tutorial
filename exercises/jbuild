@@ -11,7 +11,6 @@
     incr_map
     incremental_kernel
     sexp_pretty
-    textutils 
     ))
   (preprocess (pps (ppx_jane)))
   (flags (:standard -short-paths))
