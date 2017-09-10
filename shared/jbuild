@@ -14,6 +14,5 @@
     sexp_pretty
     ))
   (preprocess (pps (ppx_jane)))
-  (flags (:standard -short-paths))
   ))
 
