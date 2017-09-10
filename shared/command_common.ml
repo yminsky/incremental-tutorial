@@ -12,10 +12,11 @@ let host_and_port_param =
     in
     (host, port)]
 
-let connect_and_process_events process_events ~host ~port =
+let connect_and_process_events ~process_events ~host ~port =
   Log.Global.info "Starting client";
-  Tcp.connect (Tcp.to_host_and_port host port)
-  >>= fun (_socket, reader, writer) ->
+  let%bind (_socket, reader, writer) = 
+    Tcp.connect (Tcp.to_host_and_port host port)
+  in
   Log.Global.info "Connected to %s:%d" host port;
   Rpc.Connection.with_close reader writer
     ~connection_state:(fun _ -> ())
@@ -27,8 +28,5 @@ let connect_and_process_events process_events ~host ~port =
       Deferred.unit
     )
 
-let print_s sexp =
-  let module Sexp_pp = Sexp_pretty.Pretty_print in
-  Sexp_pp.pp_out_channel Sexp_pp.Config.default stdout sexp
 
 

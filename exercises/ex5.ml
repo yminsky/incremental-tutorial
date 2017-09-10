@@ -49,7 +49,10 @@ module Simple = struct
       |> Sequence.fold ~init:Time_and_host.Map.empty ~f:(fun acc (key,data) ->
         Map.add acc ~key ~data)
 
-  let process_events (events : Event.t Pipe.Reader.t) ~(max_count:int) =
+  let process_events
+        ~(max_count:int) 
+        (events : Event.t Pipe.Reader.t)
+    =
     let viewer = Viewer.create ~print:print_result in
     let state = ref State.empty in
     Pipe.iter' events ~f:(fun eventq ->
@@ -66,7 +69,11 @@ module Incremental = struct
     ignore s; ignore max_count;
     failwith "Implement me!"
 
-  let process_events (events : Event.t Pipe.Reader.t) ~(max_count:int) =
+  let process_events
+        ~(max_count:int) 
+        (events : Event.t Pipe.Reader.t)
+    : unit Deferred.t
+    =
     ignore events; ignore max_count;
     failwith "Implement me!"
 
@@ -83,8 +90,8 @@ let command =
                         ~doc:"The number of hosts to show"
          in
          fun () -> 
-           Command_common.connect_and_process_events 
-             (fun pipe -> process_events pipe ~max_count) ~host ~port
+           Command_common.connect_and_process_events ~host ~port
+             ~process_events:(process_events ~max_count)
        ])
   in
   Command.group ~summary:"Exercise 5"

@@ -66,7 +66,7 @@ let build_command ~summary process_events =
        let (host, port) = Command_common.host_and_port_param in
        fun () -> 
          Command_common.connect_and_process_events 
-           process_events ~host ~port
+           ~process_events ~host ~port
      ])
 
 let simple = 

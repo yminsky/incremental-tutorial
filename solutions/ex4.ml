@@ -35,7 +35,10 @@ module Simple = struct
       in
       if Map.is_empty map then None else Some map)
 
-  let process_events (events : Event.t Pipe.Reader.t) ~(thresh:Time.Span.t) =
+  let process_events
+        ~(thresh:Time.Span.t)
+        (events : Event.t Pipe.Reader.t)
+    =
     let viewer = Viewer.create ~print:print_result in
     let state = ref State.empty in
     Pipe.iter' events ~f:(fun eventq ->
@@ -62,7 +65,11 @@ module Incremental = struct
       if Map.is_empty map then None else Some map
     )
 
-  let process_events (events : Event.t Pipe.Reader.t) ~(thresh:Time.Span.t) : unit Deferred.t =
+  let process_events
+        ~(thresh:Time.Span.t) 
+        (events : Event.t Pipe.Reader.t)
+    : unit Deferred.t
+    =
     let module Var = Incr.Var in
     let viewer = Viewer.create ~print:print_result in
     let state = Incr.Var.create State.empty in
@@ -91,8 +98,8 @@ let command =
                         ~doc:"Threshold for determing when a host is stale"
          in
          fun () -> 
-           Command_common.connect_and_process_events 
-             (fun pipe -> process_events pipe ~thresh) ~host ~port
+           Command_common.connect_and_process_events  ~host ~port
+             ~process_events:(process_events ~thresh)
        ])
   in
   Command.group ~summary:"Exercise 4"
