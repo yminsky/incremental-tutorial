@@ -2,10 +2,20 @@
    functions in [Simple]. Your goal is to write incremental verisons
    of these same functions.
 
+   You can run this implementation as follows.
+   {v
+    ./_build/default/exercises/main.exe ex1 simple
+   v}
+
    Note that we don't expect a practical performance improvement here.
    the goal is just to get a sense of how to use the Incremental
    primitives.
+
+   {v
+    ./_build/default/exercises/main.exe ex1 incremental
+   v}
 *)
+
 
 open! Core
 open! Import
@@ -48,11 +58,11 @@ module Incremental = struct
      like. E.g. if [watch=Footprint] then a change to [h] should not
      cause this node to refire. *)
   let metric (what:what_to_show Incr.t) ~(w:int Incr.t) ~(h: int Incr.t) ~(d:int Incr.t)
-    : int Incr.t 
+    : int Incr.t
     =
     ignore what; ignore w; ignore h; ignore d;
     failwith "implement me!"
-  ;;    
+  ;;
 
   (* The structure of [run] should follow that of [simple_run] above
      closely, except:
