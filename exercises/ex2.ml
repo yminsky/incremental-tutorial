@@ -23,8 +23,8 @@
    You can run this implementation as follows.
 
    {v
-    ./_build/exercises/main.exe server -port 8080 &
-    ./_build/exercises/main.exe ex2 simple -port 8080
+    ./_build/default/exercises/main.exe server -port 8080 &
+    ./_build/default/exercises/main.exe ex2 simple -port 8080
    v}
 
    The goal of this exercise is to write your own version that uses
@@ -35,7 +35,7 @@
    up.
 
    {v
-    ./_build/exercises/main.exe ex2 incremental -port 8080
+    ./_build/default/exercises/main.exe ex2 incremental -port 8080
    v}
 
 *)
@@ -44,7 +44,7 @@ open! Core
 open! Async
 open! Import
 
-let print_passed_ratio passed_ratio = 
+let print_passed_ratio passed_ratio =
   printf "passed_ratio: %.2F\n" passed_ratio
 
 module Simple = struct
@@ -92,12 +92,12 @@ let build_command ~summary process_events =
     (let open Command.Let_syntax in
      [%map_open
        let (host, port) = Command_common.host_and_port_param in
-       fun () -> 
-         Command_common.connect_and_process_events 
+       fun () ->
+         Command_common.connect_and_process_events
            ~process_events ~host ~port
      ])
 
-let simple = 
+let simple =
   build_command ~summary:"Simple, all-at-once implementation"
     Simple.process_events
 
